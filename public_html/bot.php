@@ -14,13 +14,12 @@ $v = "5.85"; // можно указать 5.120 (современная верс
 $vk = new vk_api($token, $v); 
 $skull = new Skull ($vk);
 
-
-$data_get = $vk->request('messages.search', ['q' => $data->text ]) ['items'][0]; // получение инфы об сообщении (костыль)
+$data_get = $vk->request('messages.search', ['q' => $data->text ]) ['items'][0]; // получение инфы о сообщении (костыль)
 
 // тащим данные от костыля
-$peer_id    = $data_get['peer_id'];
-$message_id = $data_get['id'];
-$c_mes_id   = $data_get['conversation_message_id'];
+$peer_id    = $data_get['peer_id']; // индификатор беседы
+$message_id = $data_get['id'];      // айди сообщения
+$c_mes_id   = $data_get['conversation_message_id']; // глобальный айди сообщения
 
 
 // ниже стряпано на быструю руку
