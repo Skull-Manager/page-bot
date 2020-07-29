@@ -53,7 +53,7 @@
 
 
 # Я залил файлы на сервер, что дальше?
-1) Нужно получить свой vk - token на сайте <https://vkhost.github.io/> и обязательно через `Kate Mobile` -> `Скопируйте часть адресной строки от access_token= до &expires_in` и вставить токен в скрипт `bot.php` в переменную `token`:
+Нужно получить свой vk - token на сайте <https://vkhost.github.io/> и обязательно через `Kate Mobile` -> `Скопируйте часть адресной строки от access_token= до &expires_in` и вставить токен в скрипт `bot.php` в переменную `token`:
 
 ```php
 //php code
