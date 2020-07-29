@@ -3,8 +3,8 @@ class Skull {
     private $vk;
     
     public function __construct ($vk) { 
-		$this->vk = $vk;
-	} 
+	$this->vk = $vk;
+    } 
 	
 	//exetute для отправки множества запросов за 1-2 раза без нагрузки и лимитов вк апи
 	
