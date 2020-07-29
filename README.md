@@ -31,8 +31,9 @@
 3. <https://www.pythonanywhere.com> - только для питона
 
 ### Платные :
-- <https://sprinthost.ru/s34130> (спринтхост)
-- <https://timeweb.com/ru/services/hosting?utm_source=cp96337&utm_medium=timeweb&utm_campaign=timeweb-bring-a-friend> (таймвеб)
+- [https://sprinthost.ru (спринтхост)](https://sprinthost.ru/s34130)
+- [https://timeweb.com (таймвеб)](https://timeweb.com/ru/services/hosting?utm_source=cp96337&utm_medium=timeweb&utm_campaign=timeweb-bring-a-friend)
+
 
 На предложенных платных хостингов также есть тестовый период, на 1-м он 30 дней, на 2-м всего 10.
 
