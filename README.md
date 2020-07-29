@@ -26,9 +26,9 @@
 - Чтобы подключить бота нужно иметь сервер и немного нывыков работы с языком поддерживающий HTTP.
 - В качестве первичного подключения можете использовать бесплатные хостинги, такие как :
 
-- <https://ru.000webhost.com>
-- <https://heroku.com>
-- <https://www.pythonanywhere.com> - только для питона
+1. <https://ru.000webhost.com>
+2. <https://heroku.com>
+3. <https://www.pythonanywhere.com> - только для питона
 
 ### Платные :
 - <https://sprinthost.ru/s34130> (спринтхост)
