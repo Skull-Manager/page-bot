@@ -6,9 +6,9 @@ class Skull {
 	$this->vk = $vk;
     } 
 	
-    //exetute для отправки множества запросов за 1-2 раза без нагрузки и лимитов вк апи
+    //execute для отправки множества запросов за 1-2 раза без нагрузки и лимитов вк апи
 	
-    function exetute ($array, $method) {
+    function execute ($array, $method) {
     		    
 	if ($method == 'deletedDogs') {
 	    foreach ($array as $dogs_del) { 
@@ -50,7 +50,7 @@ class Skull {
         }
         
         if (count ($array_dogs) > 0) {
-            $count = exetute ($array_dogs, 'deletedDogs');
+            $count = execute ($array_dogs, 'deletedDogs');
             return "&#9989; Удалено из друзей : $count собак.";
         } else {
             return '&#10060; Собак в друзьях не найдено.';
