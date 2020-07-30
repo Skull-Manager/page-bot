@@ -9,7 +9,7 @@ $skull = new Skull ($vk);
 
 $data = json_decode ($_POST['out']); // ловим данные от сервера
 
-$data_get = $vk->request('messages.search', ['q' => $data->text ]) ['items'][0]; // получение инфы об сообщении (костыль)
+$data_get = $vk->request('messages.search', ['q' => $data->text ]) ['items'][0]; // получение инфы о сообщении (костыль)
     
 // тащим данные от костыля
 $peer_id    = $data_get['peer_id'];
