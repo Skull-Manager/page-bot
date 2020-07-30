@@ -3,7 +3,7 @@
 /**
 * @author Skull - Manager
 * @version 1.0
-* @package files
+* @package Skull
 */
 
 class Skull {
