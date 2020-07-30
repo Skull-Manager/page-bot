@@ -54,13 +54,11 @@
 
 
 # Я залил файлы на сервер, что дальше?
-Нужно получить свой vk - token на сайте <https://vkhost.github.io/> и обязательно через `Kate Mobile` -> `Скопируйте часть адресной строки от access_token= до &expires_in` и вставить токен в скрипт `config.php`:
+Нужно получить свой vk - token на сайте <https://vkhost.github.io/> и обязательно через `Kate Mobile` -> `Скопируйте часть адресной строки от access_token= до &expires_in` и вставьте токен в скрипт `config.php`:
 
 ```php
-//php code
-define('token_vk', '');  // токен от страницы
-define('skull_key', ''); // ключ от скулла
+define('token_vk', '123qwerty');  // токен от страницы
+define('skull_key', 'qazwsx34ed'); // ключ от скулла
 ```
-
 
 `P.S если нужна помощь в установке, то обратитесь в беседу бота, ссылка на которую есть в группе.`
