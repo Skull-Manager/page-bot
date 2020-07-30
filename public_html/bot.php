@@ -1,5 +1,5 @@
 <?
-require_once 'connect.php'; // подключение всех данных
+require_once 'src/connect.php'; // подключение всех данных
     
 /* 
 $peer_id      - id чата
