@@ -4,8 +4,7 @@ class vk_api{
 * Токен
 * @var string
 */
-private $token = '';
-private $v = '';
+private $token, $v;
 /**
 * @param string $token Токен
 */
