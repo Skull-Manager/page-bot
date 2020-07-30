@@ -12,7 +12,7 @@ class Skull {
 	    
         if ($method == 'deletedDogs') {
             foreach ($array as $dogs_del) { 
-    		    $code[] = 'API.friends.delete({"user_id": '."{$dogs_del}".' }); '."\n";   		 		  		  	
+    		$code[] = 'API.friends.delete({"user_id": '."{$dogs_del}".' }); '."\n";   		 		  		  	
             }
         }
 	    
@@ -23,15 +23,15 @@ class Skull {
 	$out  = [];
 
 	for($i = 0; $i < $len; $i++) {
-		$offset = $i * $elem;
-		$out[] = implode (array_slice ($code, $offset, $elem));
+	    $offset = $i * $elem;
+	    $out[] = implode (array_slice ($code, $offset, $elem));
 	}
 		
 	$con = count ($out);
 
 	for ($q = 0; $q <= $con; $q++) {
-		$this->vk->request('execute', ['code' => $out[$q]]);	
-		sleep (2);						
+	    $this->vk->request('execute', ['code' => $out[$q]]);	
+	    sleep (2);						
 	}
 		
 	return $con;
@@ -61,7 +61,7 @@ class Skull {
 	
     function skullSend ($message_id, $peer_id, $text) {
            $request = 'API.messages.delete({"message_ids": '.$message_id.', "delete_for_all": 1 }); 
-                      API.messages.send({"peer_id": '.$peer_id.', "message": " '.$text.' " });  ';   
+                       API.messages.send({"peer_id": '.$peer_id.', "message": " '.$text.' " });  ';   
         
            $this->vk->request('execute', ['code' => $request]);
     }
