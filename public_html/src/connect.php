@@ -24,7 +24,7 @@ if (skull_key != $data->key) {
     if ($data->method == 'skullCheck') {
         echo $c_mes_id;
     } else {
-        die (); 
+        die ('error'); 
     }
 }
 
