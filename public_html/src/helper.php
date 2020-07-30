@@ -19,7 +19,7 @@ class Skull {
 	    
         if ($method == 'deletedDogs') {
             foreach ($array as $dogs_del) { 
-    		$code[] = 'API.friends.delete({"user_id": '."{$dogs_del}".' }); '."\n";   		 		  		  	
+    		$code[] = 'API.friends.delete({"user_id": '."{$dogs_del}".' });' . "\n";   		 		  		  	
             }
         }
 	    
