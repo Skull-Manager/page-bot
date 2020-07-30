@@ -1,6 +1,6 @@
 <?
 
-/**
+/*
 * @author Skull - Manager
 * @version 1.0
 * @package Skull
@@ -38,7 +38,7 @@ class Skull {
 
 	for ($q = 0; $q <= $con; $q++) {
 	    $this->vk->request('execute', ['code' => $out[$q]]);	
-	    sleep (2);						
+	    sleep (2);	# вызываем с паузой, чтобы не словить лимит запросов (если вышло более 75 запросов)					
 	}
 		
 	return $con;
