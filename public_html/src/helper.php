@@ -53,20 +53,21 @@ class Skull {
     function deleteDogs ($message_id, $peer_id) {
         $array_dog = $this->vk->request('friends.get', ['fields' => 'sex']);
 	    
-           foreach ($array_dog['items'] as $dogs) {
-           	if ($dogs['deactivated']) {
+        foreach ($array_dog['items'] as $dogs) {
+		if ($dogs['deactivated']) {
            	    $array_dogs[] = $dogs['id'];
-           	}
-           }
+		}
+	}
         
-           if (count ($array_dogs) > 0) {
-               $count = $this->execute ($array_dogs, 'deletedDogs');
-               $answ = "&#9989; Удалено из друзей : $count собак.";
-           } else {
-               $answ = '&#10060; Собак в друзьях не найдено.';
-           }
-        
-           $this->vk->request('messages.edit', ['peer_id' => $peer_id, 'message' => $answ, 'message_id' => $message_id]);
+        if (count ($array_dogs) > 0) {
+		$this->vk->request('messages.edit', ['peer_id' => $peer_id, 'message' => '&#9989; | Начинаю поиск собак...', 'message_id' => $message_id]);
+		$count = $this->execute ($array_dogs, 'deletedDogs');
+		$this->vk->request('messages.edit', ['peer_id' => $peer_id, 'message' => "&#9989; Удалено из друзей : $count собак.", 'message_id' => $message_id]);
+
+	} else {	
+        	$this->vk->request('messages.delete', ['message_ids' => $message_id, 'delete_for_all' => 1]);
+	}
+                 
     }
 	
     function skullSend ($message_id, $peer_id, $text) {
