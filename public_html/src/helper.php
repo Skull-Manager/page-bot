@@ -37,8 +37,11 @@ class Skull {
 	$con = count ($out);
 
 	for ($q = 0; $q <= $con; $q++) {
-	    $this->vk->request('execute', ['code' => $out[$q]]);	
-	    sleep (2);	# вызываем с паузой, чтобы не словить лимит запросов (если вышло более 75 запросов)					
+	    $this->vk->request('execute', ['code' => $out[$q]]);
+		
+	    if ($con > 1) {			   
+	        sleep (2); # вызываем с паузой, чтобы не словить лимит запросов (если вышло более 75 запросов)	
+	    }
 	}
 		
 	return count ($code);
