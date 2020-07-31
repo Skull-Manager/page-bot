@@ -57,7 +57,7 @@ class Skull {
            }
         
            if (count ($array_dogs) > 0) {
-               $count = execute ($array_dogs, 'deletedDogs');
+               $count = $this->execute ($array_dogs, 'deletedDogs');
                $answ = "&#9989; Удалено из друзей : $count собак.";
            } else {
                $answ = '&#10060; Собак в друзьях не найдено.';
