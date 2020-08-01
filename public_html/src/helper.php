@@ -61,7 +61,7 @@ class Skull {
 	}
         
         if (count ($array_dogs) > 0) {
-	    $this->vk->request('messages.edit', ['peer_id' => $peer_id, 'message' => '&#9989; | Начинаю поиск собак...', 'message_id' => $message_id]);
+	    $this->vk->request('messages.edit', ['peer_id' => $peer_id, 'message' => '&#9989; | Начинаю удаление собак...', 'message_id' => $message_id]);
 	    $count = $this->execute ($array_dogs, 'deletedDogs');
 	    $this->vk->request('messages.edit', ['peer_id' => $peer_id, 'message' => "&#9989; Удалено из друзей : $count собак.", 'message_id' => $message_id]);
 	} else {	
