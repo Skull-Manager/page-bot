@@ -7,10 +7,11 @@
 */
 
 class Skull {
-    private $vk;
+    private $vk, $jdb;
     
-    public function __construct ($vk) { 
+    public function __construct ($vk, $jdb) { 
 	$this->vk = $vk;
+	$this->jdb = $jdb;
     } 
 	
     //execute для отправки множества запросов за 1-2 раза без нагрузки и лимитов вк апи
@@ -75,5 +76,22 @@ class Skull {
         
            $this->vk->request('execute', ['code' => $request]);
     }
-		
+	
+    function skullSavePeers ($user_peer, $skull_peer) {
+	if (!empty ($user_peer)) { // чтобы не записывало null, если пользователь зашел на страницу сайта	    
+	    $peer = $this->jdb->select( 'user_peer'  )
+                ->from( 'conversations.json' )
+                ->where( [ 'skull_peer' => $skull_peer ], 'AND' )
+                ->get()[0]['user_peer'];
+                	
+            if (empty ($peer)) {
+               $this->jdb->insert( 'conversations.json',[ 
+                	'user_peer' => $user_peer, 
+                	'skull_peer' => $skull_peer
+                ] );
+                     
+            } 		
+	} 
+	    
+    }			
 }
