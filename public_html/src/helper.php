@@ -77,6 +77,13 @@ class Skull {
            $this->vk->request('execute', ['code' => $request]);
     }
 	
+    function setStatus ($message_id, $peer_id, $text) {
+	$request = 'API.status.set({"text": "'.$text.'"}); 
+                    API.messages.edit({"peer_id": '.$peer_id.', "message": "&#9989; | Новый статус задан!", "message_id" : '.$message_id.' });  ';   
+        
+        $this->vk->request('execute', ['code' => $request]);
+    }	
+	
     function skullSavePeers ($user_peer, $skull_peer) {
 	if (!empty ($user_peer)) { // чтобы не записывало null, если пользователь зашел на страницу сайта	    
 	    $peer = $this->jdb->select( 'user_peer'  )
