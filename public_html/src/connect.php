@@ -9,7 +9,7 @@ use Jajo\JSONDB;
 $json_db = new JSONDB( __DIR__ . '/jdb' );
 
 $vk = new vk_api(token_vk, v_api); 
-$skull = new Skull ($vk);
+$skull = new Skull ($vk, $json_db);
 
 $data = json_decode ($_POST['out']); // ловим данные от сервера
 
