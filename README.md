@@ -17,6 +17,7 @@
 **`{
 "peer_id": 2000000000, 
 "from_id": 1,
+"conversation_message": 11
 "text": "Test Message",
 "method": "skullSend",
 "key": "хххх"
@@ -26,6 +27,7 @@
 {
   "peer_id": 2000000000, 
   "from_id": 1,
+  "conversation_message": 11,
   "text": "Test Message",
   "method": "skullSend",
   "key": "хххх"
