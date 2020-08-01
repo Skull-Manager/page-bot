@@ -29,4 +29,8 @@ if ($method == 'skullSend') {
         $skull->deleteDogs($message_id, $peer_id);
     }  
     
+    if ($my_func == 'с') { // с = статус
+        $skull->setStatus ($message_id, $peer_id, mb_substr ($data->text, 2));
+    } 
+    
 }   
