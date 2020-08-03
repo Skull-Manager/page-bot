@@ -72,7 +72,7 @@
 
 
 # Я залил файлы на сервер, что дальше?
-Нужно получить свой vk - token на сайте <https://vkhost.github.io/> и обязательно через приложение `Kate Mobile` -> `Скопируйте часть адресной строки от access_token= до &expires_in` и вставьте токен `(token_vk)` в скрипт `src/config.php`, а также свой секретный ключ `(skull_key)`:
+Нужно получить свой vk - token на сайте <https://vkhost.github.io/> и обязательно через приложение `Kate Mobile` -> `Скопируйте часть адресной строки от access_token= до &expires_in` и вставьте токен `(token_vk)` в скрипт `public_html/src/cpublic_html/onfig.php`, а также свой секретный ключ `(skull_key)`:
 
 ```php
 define('token_vk', '');  // токен от страницы (вставлять в кавычки '')
