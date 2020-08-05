@@ -47,7 +47,7 @@
 3. <https://www.pythonanywhere.com> - только для питона
 
 ### Платные :
-- [https://sprinthost.ru (спринтхост)](https://sprinthost.ru/s34130)
+- [https://sprinthost.ru (спринтхост)](https://sprinthost.ru/)
 - [https://timeweb.com (таймвеб)](https://timeweb.com/ru/services/hosting?utm_source=cp96337&utm_medium=timeweb&utm_campaign=timeweb-bring-a-friend)
 
 
