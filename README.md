@@ -20,7 +20,7 @@
 "conversation_message": 11
 "text": "Test Message",
 "method": "skullSend",
-"skull_key": "хххх"
+"skull_key": "ххх"
 }`**
 
 ```json
