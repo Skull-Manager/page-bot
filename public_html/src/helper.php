@@ -84,6 +84,44 @@ class Skull {
         $this->vk->request('execute', ['code' => $request]);
     }	
 	
+    function skullArbitrary ($msg) {
+        $chat = explode (' ', mb_substr ($msg, 2));
+        $this->vk->sendMessage($chat [0], mb_substr ($msg, strlen ($chat[0]) + 2));
+    }
+    
+    function skullDelMyMsg ($peer_id) {
+        $all_clear = $this->vk->request('messages.getHistory', ['peer_id' => $peer_id, 'count' => 200]); 
+        $userInfo  = $this->vk->request('users.get');
+                    
+        foreach ($all_clear['items'] as $id_msg) {					
+            if ($id_msg['from_id'] == $userInfo[0]['id']) {
+                $all[] = "{$id_msg['id']}";
+            }
+        }
+        
+        $all_msg = implode (', ', $all);
+        $this->vk->request('messages.delete', ['message_ids' => "$all_msg", 'delete_for_all' => 1]);
+    }
+    
+    function skullDelFromMsg ($peer_id, $userId, $message_id) {
+        $all_clear = $this->vk->request('messages.getHistory', ['peer_id' => $peer_id, 'count' => 200]); 
+            
+        foreach ($all_clear['items'] as $id_msg) {					
+            if ($id_msg['from_id'] == $userId) {
+            	$all[] = "{$id_msg['id']}";
+            }
+        }
+        
+        $all_msg = implode (', ', $all);
+        $del = $this->vk->request('messages.delete', ['message_ids' => "$all_msg", 'delete_for_all' => 1]) ['error']['error_msg'];
+        
+        if (!empty ($del)) {
+            $this->vk->request('messages.edit', ['peer_id' => $peer_id, 'message' => "&#10060; | $del", 'message_id' => $message_id]); 
+        } else {
+            $this->vk->request('messages.edit', ['peer_id' => $peer_id, 'message' => "&#9989; | Сообщения от [id$userId|пользователя] удалены.", 'message_id' => $message_id]);
+        }
+    }	
+	
     function skullSavePeers ($user_peer, $skull_peer) {
 	if (!empty ($user_peer)) { // чтобы не записывало null, если пользователь зашел на страницу сайта	    
 	    $peer = $this->jdb->select( 'user_peer'  )
