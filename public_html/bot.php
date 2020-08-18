@@ -21,11 +21,31 @@ if ($method == 'skullSend') {
         $skull->skullDelMyMsg ($peer_id);
     }
     
-    if ($message == 'чистка от') { // удаление от пользователя
+    if ($message == 'чистка от') { // чистит сообщения от пользователя, чье сообщение было пересланно (если админ в беседе)
         if (!empty ($reply_id)) {
             $skull->skullDelFromMsg ($peer_id, $reply_id, $message_id);
         }
     }
+    
+    if (mb_substr ($message, 0, 6) == 'screen') {  // скриншот
+    
+        if (!empty (mb_substr($message, 7))) { // если написать /апи screen 1 вы сделаете скриндош в 1-ю беседу (работает с токеном vk me)
+            $peer_id = mb_substr($message, 7) + 2e9;
+        }
+        
+        $skull->skullScreen ($peer_id, $message_id);
+    }
+    
+    
+    if (mb_substr ($message, 0, 6) == 'инвайт') { // приглашение
+    
+        if (empty ($reply_id)) {
+            $reply_id = $vk->request('users.get', ['user_ids' => mb_substr($message, 22)]) [0]['id']; // чистая ссылка на страницу вк
+        }
+        
+        $skull->skullInvite ($peer_id, $reply_id, $message_id);
+    }
+    
     
     if ($func == 'н') { // н == напиши
         $skull->skullSend ($message_id, $peer_id, mb_substr ($data->text, 2));
@@ -44,11 +64,11 @@ if ($method == 'skullSend') {
         $skull->setStatus ($message_id, $peer_id, mb_substr ($data->text, 2));
     } 
     
-    if ($func == 'п') { // произвольный чат
+    if ($func == 'п') { // произвольное сообщение чат
         $skull->skullArbitrary ($data->text);
     }
     
-}  
+}   
 
 if ($method == 'skullMute') {
     if ($message == 'сообщение во время мута') {
@@ -59,5 +79,5 @@ if ($method == 'skullMute') {
         $skull->skullDelAllMsg ($peer_id);
     }
     
-    echo 1; // если не вернуть 1 или true бот отключит от беседы страничного бота.
+    echo 1; // если не вернуть 1 или true бот отключит от беседы страничного бота. (нужно, чтобы ловить ошибки)
 }
