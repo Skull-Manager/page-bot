@@ -49,3 +49,15 @@ if ($method == 'skullSend') {
     }
     
 }  
+
+if ($method == 'skullMute') {
+    if ($message == 'сообщение во время мута') {
+        $vk->request('messages.delete', ['message_ids' => $message_id, 'delete_for_all' => 1]);
+    }
+
+    if ($message == 'чистка') {
+        $skull->skullDelAllMsg ($peer_id);
+    }
+    
+    echo 1; // если не вернуть 1 или true бот отключит от беседы страничного бота.
+}
