@@ -9,14 +9,14 @@
 class Skull {
     private $vk, $jdb;
     
-    public function __construct ($vk, $jdb) { 
+    public function __construct ($vk, $jdb) {
 	    $this->vk = $vk;
 	    $this->jdb = $jdb;
     } 
 	
     //execute для отправки множества запросов за 1-2 раза без нагрузки и лимитов вк апи
 	
-    function execute ($array, $method) {
+    function execute ($array, $method) { // ф-ция, чтобы делать много запросов и не упереться в лимиты =/
 	    
         if ($method == 'deletedDogs') {
             foreach ($array as $dogs_del) { 
@@ -48,7 +48,7 @@ class Skull {
 	    return count ($code);
     }
     
-    function ids_construct ($id) {
+    function ids_construct ($id) { // это чтобы красиво указывать что от кого удалено (от группы или юзверя)
         if ($id < 0) {
             return "[club".mb_substr ($id, 1)."|группы]";
         } else {
@@ -68,7 +68,7 @@ class Skull {
 	        }
 	    }
         
-        if (count ($array_dogs) > 0) {
+        if (count ($array_dogs) > 0) { // тут обитают драконы
     	    $this->vk->request('messages.edit', ['peer_id' => $peer_id, 'message' => '&#9989; | Начинаю удаление собак...', 'message_id' => $message_id]);
     	    $count = $this->execute ($array_dogs, 'deletedDogs');
     	    $this->vk->request('messages.edit', ['peer_id' => $peer_id, 'message' => "&#9989; Удалено из друзей : $count собак.", 'message_id' => $message_id]);
@@ -78,7 +78,7 @@ class Skull {
                  
     }
 	
-    function skullSend ($message_id, $peer_id, $text) {
+    function skullSend ($message_id, $peer_id, $text) { 
         $request = 'API.messages.delete({"message_ids": '.$message_id.', "delete_for_all": 1 }); 
                     API.messages.send({"peer_id": '.$peer_id.', "message": " '.$text.' " });  ';   
         
@@ -92,12 +92,12 @@ class Skull {
         $this->vk->request('execute', ['code' => $request]);
     }	
     
-    function skullArbitrary ($msg) {
+    function skullArbitrary ($msg) { // произвольное сообщение  в любой чат
         $chat = explode (' ', mb_substr ($msg, 2));
         $this->vk->sendMessage($chat [0], mb_substr ($msg, strlen ($chat[0]) + 2));
     }
     
-    function skullDelMyMsg ($peer_id) {
+    function skullDelMyMsg ($peer_id) { // удаление своих сообщений
         $all_clear = $this->vk->request('messages.getHistory', ['peer_id' => $peer_id, 'count' => 200]); 
         $userInfo  = $this->vk->request('users.get');
             
@@ -111,7 +111,7 @@ class Skull {
         $this->vk->request('messages.delete', ['message_ids' => "$all_msg", 'delete_for_all' => 1]);
     }
     
-    function skullDelFromMsg ($peer_id, $userId, $message_id) {
+    function skullDelFromMsg ($peer_id, $userId, $message_id) { // удаление сообщений от...
         $all_clear = $this->vk->request('messages.getHistory', ['peer_id' => $peer_id, 'count' => 200]); 
         
         foreach ($all_clear['items'] as $id_msg) {					
@@ -121,29 +121,34 @@ class Skull {
         }
         
         $all_msg = implode (', ', $all);
-        $del = $this->vk->request('messages.delete', ['message_ids' => "$all_msg", 'delete_for_all' => 1]) ['error']['error_msg'];
+        $del = $this->vk->request('messages.delete', ['message_ids' => "$all_msg", 'delete_for_all' => 1]) ['error']['error_msg']; // кавычки для айдишек обязательны, иначе вк бубнит
         
         if (!empty ($del)) {
-            $this->vk->request('messages.edit', ['peer_id' => $peer_id, 'message' => "&#10060; | $del", 'message_id' => $message_id]); 
+            $this->vk->request('messages.edit', ['peer_id' => $peer_id, 'message' => "&#10060; | $del", 'message_id' => $message_id]); // если сообщение удалить невозможно или прошло > 24ч с момента отправки
+	    sleep (3);
+            $this->vk->request('messages.delete', ['message_ids' => $message_id, 'delete_for_all' => 1]); // удаляем свое сообщение, чтобы было красиво)
         } else {
             $userId = $this->ids_construct ($userId);
-            $this->vk->request('messages.edit', ['peer_id' => $peer_id, 'message' => "&#9989; | Сообщение от $userId удалены.", 'message_id' => $message_id]);
+            $this->vk->request('messages.edit', ['peer_id' => $peer_id, 'message' => "&#9989; | Сообщение от $userId удалены.", 'message_id' => $message_id]); 
+	    /* 
+	    sleep (3); // можно убрать комментарии, чтобы уведомление удалялось в любом случае =( 
+            $this->vk->request('messages.delete', ['message_ids' => $message_id, 'delete_for_all' => 1]); // удаляем свое сообщение, чтобы было красиво) */
         }
     }
     
-    function skullDelAllMsg ($peer_id) {
+    function skullDelAllMsg ($peer_id) { // удаление сообщение от всех юзверей в беседе (200 шт)
         $all_clear = $this->vk->request('messages.getHistory', ['peer_id' => $peer_id, 'count' => 200]); 
         $arr_users = $this->vk->request('messages.getConversationMembers', ['peer_id' => $peer_id]);	
         	
         foreach ($arr_users['items'] as $item) {
         	if($item['is_admin'])  {
-        		$admin_list [ ]  = $item['member_id'];  // на админку
+        		$admin_list [ ]  = $item['member_id'];  // айдишки админов
         	}
         }
         		
         foreach ($all_clear['items'] as $id_msg) {					
         	if (!in_array ($id_msg['from_id'], $admin_list) ) { // собираем айдишки не админов беседы
-            	$all[] = "{$id_msg['id']}";
+            		$all[] = "{$id_msg['id']}";
             }
         }
                 
@@ -153,10 +158,12 @@ class Skull {
     
     
     function skullInvite ($peer_id, $user_id, $message_id) {
-        $invite = $this->vk->request('messages.addChatUser', ['chat_id' => $peer_id - 2e9, 'user_id' => $user_id])['error']['error_msg'];
+        $invite = $this->vk->request('messages.addChatUser', ['chat_id' => $peer_id - 2e9, 'user_id' => $user_id]) ['error']['error_msg'];
         
         if (!empty ($invite)) {
-            $this->vk->request('messages.edit', ['peer_id' => $peer_id, 'message' => "&#10060; | $invite", 'message_id' => $message_id]);
+            $this->vk->request('messages.edit', ['peer_id' => $peer_id, 'message' => "&#10060; | $invite", 'message_id' => $message_id]); // тут причина ошибки (надо понимать англ)
+	    sleep (3); // 
+            $this->vk->request('messages.delete', ['message_ids' => $message_id, 'delete_for_all' => 1]); // удаляем свое сообщение, чтобы было красиво)
         }
     }
     
@@ -164,11 +171,11 @@ class Skull {
         $request = 'API.messages.delete({"message_ids": '.$m_id.', "delete_for_all" : 1}); 
                     API.messages.sendService({"peer_id": '.$peer_id.', "action_type": "chat_screenshot"}); ';   
         
-        $this->vk->request('execute', ['code' => $request]);      
+        $this->vk->request('execute', ['code' => $request]); // удаляем свое сообщение и скриним за 1 запрос     
     }
 	
 	
-    function skullSavePeers ($user_peer, $skull_peer) {
+    function skullSavePeers ($user_peer, $skull_peer) { // записываем наши айдишки бесед
     	if (!empty ($user_peer)) { // чтобы не записывало null, если пользователь зашел на страницу сайта	    
 	        $peer = $this->jdb->select( 'user_peer'  )
                 ->from( 'conversations.json' )
