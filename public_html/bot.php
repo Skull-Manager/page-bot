@@ -21,7 +21,16 @@ if ($method == 'skullSend') {
         $skull->skullDelMyMsg ($peer_id);
     }
     
-    if ($message == 'чистка от') { // чистит сообщения от пользователя, чье сообщение было пересланно (если админ в беседе)
+    if (mb_substr ($message, 0, 9) == 'чистка от') {
+        
+        if (!empty (mb_substr($message, 10))) {
+            if (mb_substr($message, 10) < 100000) { // если там не ОйДи юзверя
+                $peer_id = mb_substr($message, 10) + 2e9;
+            } else { // если ойди юзверя
+                $peer_id = mb_substr($message, 10); 
+            }
+        }
+        
         if (!empty ($reply_id)) {
             $skull->skullDelFromMsg ($peer_id, $reply_id, $message_id);
         }
