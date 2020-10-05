@@ -21,16 +21,12 @@ if ($method == 'skullSend') {
         $skull->skullDelMyMsg ($peer_id);
     }
     
-    if (mb_substr ($message, 0, 9) == 'чистка от') {
-        
-        if (!empty (mb_substr($message, 10))) {
-            if (mb_substr($message, 10) < 100000) { // если там не ОйДи юзверя
-                $peer_id = mb_substr($message, 10) + 2e9;
-            } else { // если ойди юзверя
-                $peer_id = mb_substr($message, 10); 
-            }
+    if (mb_substr ($message, 0, 9) == 'чистка от') {		
+		if (empty ($reply_id)) {
+            $userInfo = $vk->request('users.get', ['user_ids' => mb_substr ($message, 25)]); // чистая ссылка на страницу вк
+            $reply_id = $userInfo[0]['id'];	
         }
-        
+		
         if (!empty ($reply_id)) {
             $skull->skullDelFromMsg ($peer_id, $reply_id, $message_id);
         }
