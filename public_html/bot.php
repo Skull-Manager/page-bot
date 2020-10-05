@@ -22,7 +22,7 @@ if ($method == 'skullSend') {
     }
     
     if (mb_substr ($message, 0, 9) == 'чистка от') {		
-		if (empty ($reply_id)) {
+	if (empty ($reply_id)) {
             $userInfo = $vk->request('users.get', ['user_ids' => mb_substr ($message, 25)]); // чистая ссылка на страницу вк
             $reply_id = $userInfo[0]['id'];	
         }
