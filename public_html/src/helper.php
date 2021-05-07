@@ -49,11 +49,7 @@ class Skull {
     }
     
     function ids_construct ($id) { // это чтобы красиво указывать что от кого удалено (от группы или юзверя)
-        if ($id < 0) {
-            return "[club".mb_substr ($id, 1)."|группы]";
-        } else {
-            return "[id$id|пользователя]";
-        }
+	return ($id < 0) ? "[club".mb_substr ($id, 1)."|группы]" : "[id$id|пользователя]";    
     }
 	
     // удаляет собак из друзей
@@ -129,7 +125,7 @@ class Skull {
             $this->vk->request('messages.delete', ['message_ids' => $message_id, 'delete_for_all' => 1]); // удаляем свое сообщение, чтобы было красиво)
         } else {
             $userId = $this->ids_construct ($userId);
-            $this->vk->request('messages.edit', ['peer_id' => $peer_id, 'message' => "&#9989; | Сообщение от $userId удалены.", 'message_id' => $message_id]); 
+            $this->vk->request('messages.edit', ['peer_id' => $peer_id, 'message' => "&#9989; | Сообщения от $userId удалены.", 'message_id' => $message_id]); 
 	    /* 
 	    sleep (3); // можно убрать комментарии, чтобы уведомление удалялось в любом случае =( 
             $this->vk->request('messages.delete', ['message_ids' => $message_id, 'delete_for_all' => 1]); // удаляем свое сообщение, чтобы было красиво) */
