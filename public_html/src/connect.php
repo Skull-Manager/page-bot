@@ -48,7 +48,7 @@ $method   = $data->method;
 
 // если ключ не верный - > проверяем если это метод проверки сервера, если не он - > убиваем процесс
 
-if (skull_key != $data->key) { 
+if (skull_key != $data->skull_key) { 
     if ($data->method == 'skullCheck') {
         echo $c_mes_id;
     } else {
