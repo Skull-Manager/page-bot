@@ -50,7 +50,10 @@ if ($method == 'skullSend') {
         
         $skull->skullInvite ($peer_id, $reply_id, $message_id);
     }
-    
+	
+    if ($message == 'ава') {
+        $skull->updateChatPhoto ($peer_id, $url_photo, $message_id);
+    }
     
     if ($func == 'н') { // н == напиши
         $skull->skullSend ($message_id, $peer_id, mb_substr ($data->text, 2));
