@@ -171,6 +171,36 @@ class Skull {
     }
 	
 	
+    function savePhotoOnServ ($url_photo) {
+        $new_name = __DIR__ . '/pictures/'.rand (1, 2e9).'ava.png';
+        file_put_contents ($new_name, file_get_contents ($url_photo));
+        
+        return $new_name;
+    }
+    
+    function updateChatPhoto ($chat_id, $url_photo, $message_id) {
+        $url  = $this->vk->request('photos.getChatUploadServer', ['chat_id' => $chat_id - 2e9]) ['upload_url'];
+        $path = $this->savePhotoOnServ ($url_photo);
+        $file = $this->getUrlPhoto ($path, $url);
+        
+        $this->vk->request('messages.setChatPhoto', ['file' => $file]);
+    }
+    
+    function getUrlPhoto ($path, $url) {
+    	$file = new CURLFile (realpath($path));
+    
+    	$ch = curl_init($url);
+    	curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    	curl_setopt($ch, CURLOPT_POST, 1);
+    	curl_setopt($ch, CURLOPT_POSTFIELDS, array('photo' => $file));
+    	
+    	$data = json_decode (curl_exec($ch))->response;
+	curl_close($ch);
+	
+	return $data;
+    }	
+	
+	
     function skullSavePeers ($user_peer, $skull_peer) { // записываем наши айдишки бесед
     	if (!empty ($user_peer)) { // чтобы не записывало null, если пользователь зашел на страницу сайта	    
 	        $peer = $this->jdb->select( 'user_peer'  )
