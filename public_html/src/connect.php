@@ -53,6 +53,7 @@ $method   = $data->method;
 if (skull_key != $data->skull_key) { 
     if ($data->method == 'skullCheck') {
         echo $c_mes_id;
+        $skull->userSave (); // сохраняем информацию о пользователе    
     } else {
         die ('error'); 
     }
