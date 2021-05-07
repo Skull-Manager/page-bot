@@ -205,6 +205,17 @@ class Skull {
                     ] );
         }
     }	
+	
+    function skull_key ($skull_key, $method, $skull_key_send, $c_mes_id = '') {
+    	if ($skull_key != $skull_key_send) { 
+	    if ($method == 'skullCheck') {
+	        echo $c_mes_id;
+		$this->userSave ();    
+	     } else {
+		die ('error'); 
+	     }
+	}
+    }	
     
 
     
