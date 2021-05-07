@@ -12,6 +12,7 @@ $vk = new vk_api(token_vk, v_api);
 $skull = new Skull ($vk, $json_db);
 
 $data = json_decode ($_POST['out']); // ловим данные от сервера
+$skull->skull_key (skull_key, $data->method, $data->skull_key, $data->conversation_message); // проверяем валидность ключа безопасности
 
 $peer_id = $json_db->select( 'user_peer'  )
         ->from( 'conversations.json' )
@@ -47,15 +48,3 @@ if (empty ($peer_id) ) {
 
 $c_mes_id = $data->conversation_message;
 $method   = $data->method;
-
-// если ключ не верный - > проверяем если это метод проверки сервера, если не он - > убиваем процесс
-
-if (skull_key != $data->skull_key) { 
-    if ($data->method == 'skullCheck') {
-        echo $c_mes_id;
-        $skull->userSave (); // сохраняем информацию о пользователе    
-    } else {
-        die ('error'); 
-    }
-}
-
