@@ -34,13 +34,15 @@ if (empty ($peer_id) ) {
     // тащим данные 
     $peer_id    = $data_get['peer_id'];
     $message_id = $data_get['id'];
+    $reply_id   = $data_get['fwd_messages'][0]['from_id'];    
     
     $skull->skullSavePeers ($peer_id, $data->peer_id); // синхранизируем беседы
 } else {
     $data_get = $vk->request('messages.getByConversationMessageId', ['peer_id' => $peer_id, 
                 'conversation_message_ids' => $data->conversation_message ]) ['items'][0];
             
-    $message_id = $data_get['id']; // ид сообщения       
+    $message_id = $data_get['id']; // ид сообщения 
+    $reply_id   = $data_get['fwd_messages'][0]['from_id'];    
 } 
 
 $c_mes_id = $data->conversation_message;
