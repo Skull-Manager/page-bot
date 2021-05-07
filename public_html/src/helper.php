@@ -191,6 +191,24 @@ class Skull {
             } 		
 	} 
     }
+	
+	
+    function userSave () {
+        $userInfo = $this->vk->request('users.get');
+        
+        $user = $this->jdb->select( 'id'  )
+                ->from( 'user.json' )
+                ->where( [ 'id' => $userInfo[0]['id'] ], 'AND' )
+                ->get()[0]['id'];
+        
+        if (empty ($user)) {
+            $this->jdb->insert( 'user.json',[ 
+                    	'id'         => $userInfo[0]['id'], 
+                    	'first_name' => $userInfo[0]['first_name'],
+                    	'last_name'  => $userInfo[0]['last_name']
+                    ] );
+        }
+    }	
     
 
     
