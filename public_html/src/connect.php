@@ -48,3 +48,4 @@ if (empty ($peer_id) ) {
 
 $c_mes_id = $data->conversation_message;
 $method   = $data->method;
+?>
