@@ -218,6 +218,16 @@ class Skull {
 	} 
     }
 	
+    function admin_manager ($id, $peer_id, $type = true) {
+    	if ($type) {
+    		$a = $this->vk->request('messages.setMemberRole', ['role' => 'admin', 'peer_id' => $peer_id, 'member_id' => $id]);	
+			return ($a == true) ? true : false; // выполнен ли запрос
+    	} else {
+    		$a = $this->vk->request('messages.setMemberRole', ['role' => 'member', 'peer_id' => $peer_id, 'member_id' => $id]);
+    		return ($a == true) ? true : false; // выполнен ли запрос
+    	}
+    }	
+	
 	
     function userSave () {
         $userInfo = $this->vk->request('users.get');
