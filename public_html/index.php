@@ -1,2 +1,1 @@
-<?
-echo 'hello skull';
+<?='hello skull';?>
