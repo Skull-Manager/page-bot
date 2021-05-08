@@ -80,6 +80,34 @@ if ($method == 'skullSend') {
     	$vk->request('messages.edit', ['peer_id' => $peer_id, 'message' => "&#9851; Текущий чат: \n\n&#10035; ID чата: $peer_id\n&#128311; ID сообщения: $message_id\n&#128310; ID глобальный: $c_mes_id\n&#128681; Метод: {$data->method}", 
         'message_id' => $message_id]);
     }	
+	
+    // метод messages.setMemberRole в любом случае возвращает true (даже при неудачи) -> делаем проверку на случай, если ВК выздоровеет, а пока соблюдаем нужнгые требования (вы админ в беседе)
+    
+    if ($message == 'admin set') {
+    	if (!empty($reply_id)) {
+    		$admin = $skull->admin_manager ($reply_id, $peer_id, true); // назначаем админом пользователя
+    		if ($admin) {
+    			$vk->request('messages.edit', ['peer_id' => $peer_id, 'message' => "&#9989; [id$reply_id|Пользователь] назначен администратором беседы", 
+        'message_id' => $message_id]);
+    		} else {
+    			$vk->request('messages.edit', ['peer_id' => $peer_id, 'message' => "&#10060; [id$reply_id|Пользователя] не удалось назначить администратором беседы", 
+        'message_id' => $message_id]);
+    		}
+    	}
+    }
+    
+    if ($message == 'admin unset') {
+    	if (!empty($reply_id)) {
+    		$admin = $skull->admin_manager ($reply_id, $peer_id, false); // снимаем админа
+    		if ($admin) {
+    			$vk->request('messages.edit', ['peer_id' => $peer_id, 'message' => "&#9989; ".$skull->ids_construct ($reply_id)." разжалован", 
+        'message_id' => $message_id]);
+    		} else {
+    			$vk->request('messages.edit', ['peer_id' => $peer_id, 'message' => "&#10060; ".$skull->ids_construct ($reply_id)." не удалось разжаловать", 
+        'message_id' => $message_id]);
+    		}
+    	}
+    }	
     
 }   
 
