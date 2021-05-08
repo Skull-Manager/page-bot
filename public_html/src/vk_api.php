@@ -150,7 +150,7 @@ public function sendImage($id, $local_file_path) {
   return 1;
   }
 }
-
+?>
 
 
 
