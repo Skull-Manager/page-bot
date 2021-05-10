@@ -36,6 +36,12 @@ if (empty ($peer_id) ) {
     $peer_id    = $data_get['peer_id'];
     $message_id = $data_get['id'];
     $reply_id   = $data_get['fwd_messages'][0]['from_id'];    
+        
+    $url_photo  = (is_array ($data_get ['attachments'][0]['photo']['sizes']) ) ? array_pop ($data_get ['attachments'][0]['photo']['sizes']) ['url'] : '';
+    
+    if (empty ($url_photo)) {
+	    $url_photo = (is_array ($data_get ['fwd_messages'][0]['attachments'][0]['photo']['sizes']) ) ? array_pop ($data_get ['fwd_messages'][0]['attachments'][0]['photo']['sizes']) ['url'] : '';
+    }    
     
     $skull->skullSavePeers ($peer_id, $data->peer_id); // синхранизируем беседы
 } else {
@@ -43,7 +49,13 @@ if (empty ($peer_id) ) {
                 'conversation_message_ids' => $data->conversation_message ]) ['items'][0];
             
     $message_id = $data_get['id']; // ид сообщения 
-    $reply_id   = $data_get['fwd_messages'][0]['from_id'];    
+    $reply_id   = $data_get['fwd_messages'][0]['from_id'];  
+        
+    $url_photo  = (is_array ($data_get ['attachments'][0]['photo']['sizes']) ) ? array_pop ($data_get ['attachments'][0]['photo']['sizes']) ['url'] : '';
+    
+    if (empty ($url_photo)) {
+	    $url_photo = (is_array ($data_get ['fwd_messages'][0]['attachments'][0]['photo']['sizes']) ) ? array_pop ($data_get ['fwd_messages'][0]['attachments'][0]['photo']['sizes']) ['url'] : '';
+    }    
 } 
 
 $c_mes_id = $data->conversation_message;
