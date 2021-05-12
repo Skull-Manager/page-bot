@@ -81,6 +81,35 @@ if ($method == 'skullSend') {
         'message_id' => $message_id]);
     }	
 	
+    if ($message == 'беседа') {
+    	$need_per = ($reply_peer != '') ? $reply_peer : $peer_id;
+
+    	$chat_info = $vk->request('messages.getConversationsById', ['peer_ids' => $need_per])['items'][0];
+    	
+    	$admin_list = $chat_info['chat_settings']['admin_ids'];
+    	$admin_count = count ($admin_list);
+    	
+    	$l = 0;
+    	foreach ($admin_list as $bots_admin) {
+    		if ($bots_admin < 0) {
+    			$l++;
+    		}
+    	}
+    	
+    	$admin_online = (in_array ($chat_info['chat_settings']['owner_id'], $chat_info['chat_settings']['active_ids']) ) ? '(Активен)' : '(Не активен)';
+    	$online = count ($chat_info['chat_settings']['active_ids']);
+    	
+    	$change_info  = $skull->is_true ($chat_info['chat_settings']['acl']['can_change_info']);
+    	$link_peer    = $skull->is_true ($chat_info['chat_settings']['acl']['can_change_invite_link']);
+    	$pin_info     = $skull->is_true ($chat_info['chat_settings']['acl']['can_change_pin']);
+    	$invate_info  = $skull->is_true ($chat_info['chat_settings']['acl']['can_invite']);
+    	$can_moderate = $skull->is_true ($chat_info['chat_settings']['acl']['can_moderate']);
+    	$mass_link    = $skull->is_true ($chat_info['chat_settings']['acl']['can_use_mass_mentions']);
+    	
+    	$chat_msg = "&#9851; Информация о текущей беседе: \n\n&#128681; ИД чата: $peer_id\n&#128311; [id{$chat_info['chat_settings']['owner_id']}|Создатель] $admin_online\n&#10055; Название: {$chat_info['chat_settings']['title']}\n&#128312; Кол-во участников: {$chat_info['chat_settings']['members_count']}\n&#128313; Кол-во админов: $admin_count\n&#128160; Из них боты-админы: $l\n&#128309; Активных: $online чел.\n\n&#9881; Права в беседе &#9881;\n\n&#128221; Изменение информации: $change_info\n&#128206; Изменение ссылки на приглашение: $link_peer\n&#128467; Доступна ссылка на приглашение: $link_peer\n&#128391; Изменение закрепа: $pin_info\n&#128483; Массовые упоминания: $mass_link\n&#128100; Администратирование: $can_moderate\n&#128101; Приглашение в беседу: $invate_info";
+    	$vk->request('messages.edit', ['peer_id' => $peer_id, 'message' => "$chat_msg", 'message_id' => $message_id, 'dont_parse_links' => 1, 'disable_mentions' => 1]);
+    }	
+	
     // метод messages.setMemberRole в любом случае возвращает true (даже при неудачи) -> делаем проверку на случай, если ВК выздоровеет, а пока соблюдаем нужнгые требования (вы админ в беседе)
     
     if ($message == 'admin set') {
