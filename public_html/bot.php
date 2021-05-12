@@ -14,13 +14,14 @@ $data->text   - сообщение из чата
 */
 
 $message = mb_strtolower ($data->text);
+$need_peer = ($reply_peer != '') ? $reply_peer : $peer_id; // теперь если пересылать сообщения из другого чата, команда будет выполнена в нем даже если бота нет в беседе
 
 if ($method == 'skullSend') {
     
     $func = mb_substr ($message, 0, 1); // получение 1-й буквы
     
     if ($message == 'чистка') { // удаление своих сообщений
-        $skull->skullDelMyMsg ($peer_id);
+        $skull->skullDelMyMsg ($need_peer);
     }
     
     if (mb_substr ($message, 0, 9) == 'чистка от') {		
@@ -30,7 +31,7 @@ if ($method == 'skullSend') {
         }
 		
         if (!empty ($reply_id)) {
-            $skull->skullDelFromMsg ($peer_id, $reply_id, $message_id);
+            $skull->skullDelFromMsg ($need_peer, $reply_id, $message_id);
         }
     }
     
@@ -40,7 +41,7 @@ if ($method == 'skullSend') {
             $peer_id = mb_substr($message, 7) + 2e9;
         }
         
-        $skull->skullScreen ($peer_id, $message_id);
+        $skull->skullScreen ($need_peer, $message_id);
     }
     
     
@@ -58,11 +59,11 @@ if ($method == 'skullSend') {
     }
     
     if ($func == 'н') { // н == напиши
-        $skull->skullSend ($message_id, $peer_id, mb_substr ($data->text, 2));
+        $skull->skullSend ($message_id, $need_peer, mb_substr ($data->text, 2));
     }  
     
     if ($func == 'е') { // е = edit = отредактируй
-        $vk->request('messages.edit', ['peer_id' => $peer_id, 'message' => mb_substr ($data->text, 2), 
+        $vk->request('messages.edit', ['peer_id' => $need_peer, 'message' => mb_substr ($data->text, 2), 
         'message_id' => $message_id]);
     }  
     
@@ -84,8 +85,6 @@ if ($method == 'skullSend') {
     }	
 	
     if ($message == 'беседа') {
-    	$need_per = ($reply_peer != '') ? $reply_peer : $peer_id;
-
     	$chat_info = $vk->request('messages.getConversationsById', ['peer_ids' => $need_per])['items'][0];
     	
     	$admin_list = $chat_info['chat_settings']['admin_ids'];
@@ -116,7 +115,7 @@ if ($method == 'skullSend') {
     
     if ($message == 'admin set') {
     	if (!empty($reply_id)) {
-    		$admin = $skull->admin_manager ($reply_id, $peer_id, true); // назначаем админом пользователя
+    		$admin = $skull->admin_manager ($reply_id, $need_peer, true); // назначаем админом пользователя
     		if ($admin) {
     			$vk->request('messages.edit', ['peer_id' => $peer_id, 'message' => "&#9989; [id$reply_id|Пользователь] назначен администратором беседы", 
         'message_id' => $message_id]);
@@ -129,7 +128,7 @@ if ($method == 'skullSend') {
     
     if ($message == 'admin unset') {
     	if (!empty($reply_id)) {
-    		$admin = $skull->admin_manager ($reply_id, $peer_id, false); // снимаем админа
+    		$admin = $skull->admin_manager ($reply_id, $need_peer, false); // снимаем админа
     		if ($admin) {
     			$vk->request('messages.edit', ['peer_id' => $peer_id, 'message' => "&#9989; ".$skull->ids_construct ($reply_id)." разжалован", 
         'message_id' => $message_id]);
