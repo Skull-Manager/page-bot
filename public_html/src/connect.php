@@ -14,7 +14,7 @@ $skull = new Skull ($vk, $json_db);
 $data = json_decode ($_POST['out']); // ловим данные от сервера
 $skull->skull_key (skull_key, $data->method, $data->skull_key, $data->conversation_message); // проверяем валидность ключа безопасности
 
-$peer_id = $json_db->select( 'user_peer'  )
+$peer_id = (int) $json_db->select( 'user_peer'  )
         ->from( 'conversations.json' )
         ->where( [ 'skull_peer' => $data->peer_id ], 'AND' )
         ->get()[0]['user_peer'];
