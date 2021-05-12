@@ -30,34 +30,29 @@ $peer_id = $json_db->select( 'user_peer'  )
 */
 
 if (empty ($peer_id) ) {        
-    $data_get = $vk->request('messages.search', ['q' => $data->text, 'count' => 1 ]) ['items'][0]; // получение инфы о сообщении (костыль)
-        
-    // тащим данные 
-    $peer_id    = $data_get['peer_id'];
-    $message_id = $data_get['id'];
-    $reply_id   = $data_get['fwd_messages'][0]['from_id'];    
-        
-    $url_photo  = (is_array ($data_get ['attachments'][0]['photo']['sizes']) ) ? array_pop ($data_get ['attachments'][0]['photo']['sizes']) ['url'] : '';
-    
-    if (empty ($url_photo)) {
-	    $url_photo = (is_array ($data_get ['fwd_messages'][0]['attachments'][0]['photo']['sizes']) ) ? array_pop ($data_get ['fwd_messages'][0]['attachments'][0]['photo']['sizes']) ['url'] : '';
-    }    
-    
+    $data_get = $vk->request('messages.search', ['q' => $data->text, 'count' => 1 ]) ['items'][0]; // получение инфы о сообщении (костыль) (а может и нет)
+    $peer_id  = (int) $data_get['peer_id']; // ид беседы (объявляем, если не нашли в бд)
+
     $skull->skullSavePeers ($peer_id, $data->peer_id); // синхранизируем беседы
 } else {
     $data_get = $vk->request('messages.getByConversationMessageId', ['peer_id' => $peer_id, 
-                'conversation_message_ids' => $data->conversation_message ]) ['items'][0];
+                'conversation_message_ids' => $data->conversation_message ]) ['items'][0]; // если беседа найдена в бд, то получаем данные из сообщения
             
-    $message_id = $data_get['id']; // ид сообщения 
-    $reply_id   = $data_get['fwd_messages'][0]['from_id'];  
-        
-    $url_photo  = (is_array ($data_get ['attachments'][0]['photo']['sizes']) ) ? array_pop ($data_get ['attachments'][0]['photo']['sizes']) ['url'] : '';
-    
-    if (empty ($url_photo)) {
-	    $url_photo = (is_array ($data_get ['fwd_messages'][0]['attachments'][0]['photo']['sizes']) ) ? array_pop ($data_get ['fwd_messages'][0]['attachments'][0]['photo']['sizes']) ['url'] : '';
-    }    
 } 
 
+$url_photo  = (is_array ($data_get ['attachments'][0]['photo']['sizes']) ) ? array_pop ($data_get ['attachments'][0]['photo']['sizes']) ['url'] : '';
+    
+if (empty ($url_photo)) {
+	$url_photo = (is_array ($data_get ['fwd_messages'][0]['attachments'][0]['photo']['sizes']) ) ? array_pop ($data_get ['fwd_messages'][0]['attachments'][0]['photo']['sizes']) ['url'] : '';
+}
+
+# получаем переменные для скрипта bot.php 
+
+$message_id = $data_get['id']; // ид сообщения
+$reply_id   = $data_get['fwd_messages'][0]['from_id']; // ид пользователя, чье сообщение было переслано 
+$reply_peer = ($data_get['fwd_messages'][0]['peer_id'] != '') ? $data_get['fwd_messages'][0]['peer_id'] : $data_get['reply_message']['peer_id']; // ид беседы с которой было переслано сообщение
+$reply_peer = ($reply_peer >= 2e9) ? $reply_peer : ''; // обнуляем переменную, если сообщение не из беседы
+
 $c_mes_id = $data->conversation_message;
-$method   = $data->method;
+$method   = $data->method; // метод, который пришел от бота
 ?>
