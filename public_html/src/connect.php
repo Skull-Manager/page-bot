@@ -49,7 +49,7 @@ if (empty ($url_photo)) {
 # получаем переменные для скрипта bot.php 
 
 $message_id = $data_get['id']; // ид сообщения
-$reply_id   = $data_get['fwd_messages'][0]['from_id']; // ид пользователя, чье сообщение было переслано 
+$reply_id   = ($data_get['fwd_messages'][0]['from_id'] != '') ? $data_get['fwd_messages'][0]['from_id'] : $data_get['reply_message']['from_id'];; // ид пользователя, чье сообщение было переслано 
 $reply_peer = ($data_get['fwd_messages'][0]['peer_id'] != '') ? $data_get['fwd_messages'][0]['peer_id'] : $data_get['reply_message']['peer_id']; // ид беседы с которой было переслано сообщение
 $reply_peer = ($reply_peer >= 2e9) ? $reply_peer : ''; // обнуляем переменную, если сообщение не из беседы
 
