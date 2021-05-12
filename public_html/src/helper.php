@@ -228,6 +228,10 @@ class Skull {
     	}
     }	
 	
+    function is_true ($var) {
+    	return ($var == true) ? '(доступно)' : '(запрещено)';
+    }	
+	
 	
     function userSave () {
         $userInfo = $this->vk->request('users.get');
