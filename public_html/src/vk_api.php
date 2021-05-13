@@ -120,6 +120,32 @@ public function request($method,$params=array()){
   else
   return $result;
 }
+  
+  
+function getUploadServerMessages ($peer_id, $selector = 'doc') {
+    $result = null;
+        
+    if ($selector == 'doc')
+        $result = $this->request('docs.getMessagesUploadServer', ['type' => 'doc', 'peer_id' => $peer_id]);
+    else if ($selector == 'photo')
+        $result = $this->request('photos.getMessagesUploadServer', ['peer_id' => $peer_id]);
+    else if ($selector == 'audio_message')
+        $result = $this->request('docs.getMessagesUploadServer', ['type' => 'audio_message', 'peer_id' => $peer_id]);
+        
+    return $result;
+}
+
+function uploadVoice($id, $local_file_path) {
+    $upload_url = $this->getUploadServerMessages($id, 'audio_message')['upload_url'];
+    $answer_vk = json_decode($this->sendFiles($upload_url, $local_file_path, 'file'), true);
+        
+    return $this->saveDocuments($answer_vk['file'], 'voice');
+}
+
+function sendVoice($id, $local_file_path, $params = []) {
+    $upload_file = $this->uploadVoice ($id, $local_file_path);
+    return $this->request('messages.send', ['attachment' => "doc" . $upload_file['audio_message']['owner_id'] . "_" . $upload_file['audio_message']['id'], 'peer_id' => $id] + $params);
+}  
 
 
 private function sendFiles($url, $local_file_path, $type = 'file') {
