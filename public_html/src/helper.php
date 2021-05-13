@@ -185,6 +185,108 @@ class Skull {
         
         $this->vk->request('messages.setChatPhoto', ['file' => $file]);
     }
+	
+    function save_on_server ($url, $type = '', $title = '', $message_id = 0, $peer_id = 0) {
+    	$uploaddir  = __DIR__ . '/audio/';
+    	$name_file = 'voice_message_' . $this->getRandomWord () . '.mp3';
+		$uploadfile = $uploaddir . $name_file;
+		
+		if ($type == 'v_msg') {
+			if ($title != '' AND strlen ($title) <= 30) {
+				$file_now = $this->jdb->select( 'title' )
+	                ->from( 'audio.json' )
+	                ->where( [ 'title' => $title ], 'AND' )
+	                ->get()[0]['title'];
+	                
+	            if ($file_now == '') {
+					$this->jdb->insert( 'audio.json', [ 
+		                'file_name'  => $name_file, 
+		                'title'      => $title
+		            ] );
+	            } else {
+	            	$this->vk->request('messages.edit', ['peer_id' => $peer_id, 'message' => "&#10060; Такое название уже существует", 
+        'message_id' => $message_id]);
+					die ();	
+	            }
+			} else {
+				$this->vk->request('messages.edit', ['peer_id' => $peer_id, 'message' => "&#10060; Не задано название файла или слишком длинное", 
+        'message_id' => $message_id]);
+				die ();
+			}
+			
+		}
+
+		if (copy ($url, $uploadfile) ) {
+		    return true;
+		}
+    }
+    
+    function get_voice ($title) {
+    	$file_now = $this->jdb->select( 'file_name' )
+		                ->from( 'audio.json' )
+		                ->where( [ 'title' => $title ], 'AND' )
+		                ->get()[0]['file_name'];
+		                
+		return $file_now;	                
+    }
+    
+    function get_gs_all () {
+    	$file_all = $this->jdb->select( 'title' )->from( 'audio.json' )->where( [  ], 'AND' )->get();
+		
+		$k = 1;
+		foreach ($file_all as $voice) {
+			$list_gs .= "$k) {$voice['title']}\n";
+			$k++;
+		}
+		
+		if ($list_gs == '') {
+			return false; // файлов не найдено
+		}
+		
+		return $list_gs;                
+    }
+    
+    function gs_rename ($old_name, $new_name) {
+    	$file_old = $this->jdb->select( 'title' )
+	                ->from( 'audio.json' )
+	                ->where( [ 'title' => $old_name ], 'AND' )
+	                ->get()[0]['title'];
+    	
+    	if ($file_old != '') {
+    		$this->jdb->update( [ 'title' => $new_name] )
+						->from( 'audio.json' )
+						->where( [ 'title' => $old_name ], 'AND' )
+						->trigger();
+			return 1;			
+    	} else {
+    		return 2; // файла с таким название не найдено
+    	}
+    }
+    
+    function del_gs ($title) {
+    	$file = $this->jdb->select( 'file_name' )
+	                ->from( 'audio.json' )
+	                ->where( [ 'title' => $title ], 'AND' )
+	                ->get()[0]['file_name'];
+	                
+	    if ($file != '') {
+	    	$this->jdb->delete()
+					->from( 'audio.json' )
+					->where( [ 'title' => $title ], 'AND' )
+					->trigger();
+					
+			unlink ( __DIR__ . '/audio/' . $file); // удаляем файл с сервера		
+			return 1;		
+	    } else {
+	    	return 2;
+	    }             
+    }
+    
+    function getRandomWord ($len = 10) {
+		$word = array_merge(range('a', 'z'), range('A', 'Z'), range('0', '9'));
+		shuffle($word);
+		return substr(implode($word), 0, $len);
+    }	
     
     function getUrlPhoto ($path, $url) {
     	$file = new CURLFile (realpath($path));
