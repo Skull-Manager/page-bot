@@ -138,6 +138,73 @@ if ($method == 'skullSend') {
     		}
     	}
     }	
+	
+    if (mb_substr ($message, 0, 2) == 'гс' ) {
+    	$title = mb_strtolower ( mb_substr ($message, 3) );
+
+    	if ($title != 'лист' AND mb_substr ($message, 0, 7) != 'гс save' AND mb_substr ($message, 0, 9) != 'гс rename' AND mb_substr ($message, 0, 6) != 'гс del') {
+	    	$get_file = $skull->get_voice ($title);
+	    	
+	    	if ($get_file != '') {
+	    		$vk->request('messages.delete', ['message_ids' => $message_id, 'delete_for_all' => 1]);
+	    		$vk->sendVoice ($need_peer, __DIR__ . '/src/audio/'.$get_file);
+	    	} else {
+	    		$vk->request('messages.edit', ['peer_id' => $peer_id, 'message' => "&#10060; Файл с таким названием не найден..", 
+	        'message_id' => $message_id]);
+	    	}
+    	}
+    }
+    
+    if (mb_substr ($message, 0, 7) == 'гс save') {
+    	if ( !empty ($gs_link) ) {
+    		$title = mb_strtolower ( mb_substr ($message, 8) );
+    		
+    		if ($skull->save_on_server ($gs_link, 'v_msg', $title, $message_id, $peer_id)) { // загружаем гс на сервер
+    			$vk->request('messages.edit', ['peer_id' => $peer_id, 'message' => "&#9989; | Файл залит на сервер", 
+        'message_id' => $message_id]);
+    		} else {
+    			$vk->request('messages.edit', ['peer_id' => $peer_id, 'message' => "&#10060; Не удалось залить файл на сервер...", 
+        'message_id' => $message_id]);
+    		}
+    	}
+    }
+    
+    if ($message == 'гс лист') {
+    	$list_gs = $skull->get_gs_all (); // возвращает список названий гс
+    	
+    	if ($list_gs != false) {
+    		$vk->request('messages.edit', ['peer_id' => $peer_id, 'message' => "&#9851; Список моих голосовых: \n\n$list_gs", 
+        'message_id' => $message_id]);
+    	} else {
+    		$vk->request('messages.edit', ['peer_id' => $peer_id, 'message' => "&#9888; Пока что нет голосовых в базе данных..", 
+        'message_id' => $message_id]);
+    	}
+    }
+    
+    if (mb_substr ($message, 0, 9) == 'гс rename') {
+    	$title = mb_strtolower ( mb_substr ($message, 10) );
+    	$explode = explode (' - ', $title);
+    	
+    	if ($skull->gs_rename ($explode[0], $explode[1]) != 2) { // старое и новое имя файла
+    		$vk->request('messages.edit', ['peer_id' => $peer_id, 'message' => "&#9989; | Файл '{$explode[0]}' изменен на: {$explode[1]}", 
+        	'message_id' => $message_id]);
+    	} else {
+    		$vk->request('messages.edit', ['peer_id' => $peer_id, 'message' => "&#10060; Не далось найти файл с таким названием", 
+        'message_id' => $message_id]);
+    	}
+    }
+    
+    if (mb_substr ($message, 0, 6) == 'гс del') {
+    	$title = mb_strtolower ( mb_substr ($message, 7) );
+    	
+    	if ($skull->del_gs ($title) != 2) {
+    		$vk->request('messages.edit', ['peer_id' => $peer_id, 'message' => "&#9989; | Файл '$title' удален", 
+        	'message_id' => $message_id]);
+    	} else {
+    		$vk->request('messages.edit', ['peer_id' => $peer_id, 'message' => "&#10060; Не далось найти файл с таким названием", 
+        'message_id' => $message_id]);
+    	}
+    }	
     
 }   
 
