@@ -92,33 +92,41 @@ public function savePhoto($photo, $server, $hash){
 * @return mixed|null
 */
 
-public function request($method,$params=array()){
-  $url = 'https://api.vk.com/method/'.$method;
-  $params['access_token']=$this->token;
-  $params['v']=$this->v;
-  if (function_exists('curl_init')) {
-  $ch = curl_init();
-  curl_setopt($ch, CURLOPT_HTTPHEADER, array(
-  "Content-Type:multipart/form-data"
-  ));
-  curl_setopt($ch, CURLOPT_URL, $url);
-  curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-  curl_setopt($ch, CURLOPT_POSTFIELDS, $params);
-  $result = json_decode(curl_exec($ch), True);
-  curl_close($ch);
-  } else {
-    $result = json_decode(file_get_contents($url, true, stream_context_create(array(
-    'http' => array(
-    'method'  => 'POST',
-    'header'  => "Content-type: application/x-www-form-urlencoded\r\n",
-    'content' => http_build_query($params)
-    )
-    ))), true);
-  }
-  if (isset($result['response']))
-  return $result['response'];
-  else
-  return $result;
+public function request ($method, $params = []) {
+	$url = 'https://api.vk.com/method/'.$method;
+	
+	$params['access_token'] = $this->token;
+	$params['v'] = $this->v;
+	$params['random_id'] = rand (-2147483648, 2147483647);
+	$params['peer_id'] = (int) $params['peer_id'];
+  
+	if (function_exists('curl_init')) {
+		$ch = curl_init();
+		
+		curl_setopt($ch, CURLOPT_HTTPHEADER, array(
+		  "Content-Type:multipart/form-data"
+		));
+	  
+		curl_setopt($ch, CURLOPT_URL, $url);
+		curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+		curl_setopt($ch, CURLOPT_POSTFIELDS, $params);
+		$result = json_decode(curl_exec($ch), True);
+		curl_close($ch);
+  
+    } else {
+		$result = json_decode(file_get_contents($url, true, stream_context_create(array(
+	    'http' => array(
+	    'method'  => 'POST',
+	    'header'  => "Content-type: application/x-www-form-urlencoded\r\n",
+	    'content' => http_build_query($params)
+	    )
+	    ))), true);
+    }
+  
+	if (isset($result['response']))
+		return $result['response'];
+	else
+		return $result;
 }
   
   
