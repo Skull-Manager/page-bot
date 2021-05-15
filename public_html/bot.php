@@ -80,7 +80,7 @@ if ($method == 'skullSend') {
     }
 	
     if ($message == 'чат') {
-    	$vk->request('messages.edit', ['peer_id' => $peer_id, 'message' => "&#9851; Текущий чат: \n\n&#10035; ID чата: $peer_id\n&#128311; ID сообщения: $message_id\n&#128310; ID глобальный: $c_mes_id\n&#128681; Метод: {$data->method}", 
+    	$vk->request('messages.edit', ['peer_id' => $need_peer, 'message' => "&#9851; Текущий чат: \n\n&#10035; ID чата: $need_peer\n&#128311; ID сообщения: $message_id\n&#128310; ID глобальный: $c_mes_id\n&#128681; Метод: {$data->method}", 
         'message_id' => $message_id]);
     }	
 	
