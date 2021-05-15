@@ -74,9 +74,9 @@ class Skull {
                  
     }
 	
-    function skullSend ($message_id, $peer_id, $text) { 
+    function skullSend ($message_id, $peer_id, $text, $sec = 35) { // используется для отправки boom-сообщений
         $request = 'API.messages.delete({"message_ids": '.$message_id.', "delete_for_all": 1 }); 
-                    API.messages.send({"peer_id": '.$peer_id.', "message": " '.$text.' " });  ';   
+                    API.messages.send({"peer_id": '. (int) $peer_id.', "message": " '.$text.' ", "expire_ttl": '.$sec.', "random_id" : 0 });  ';   
         
         $this->vk->request('execute', ['code' => $request]);
     }
