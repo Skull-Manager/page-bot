@@ -40,7 +40,7 @@ if (empty ($peer_id) ) {
             
 } 
 
-$url_photo  = (is_array ($data_get ['attachments'][0]['photo']['sizes']) ) ? array_pop ($data_get ['attachments'][0]['photo']['sizes']) ['url'] : '';
+$url_photo  = (is_array ($data_get['reply_message']['attachments'][0]['photo']['sizes']) ) ? array_pop ($data_get ['reply_message']['attachments'][0]['photo']['sizes']) ['url'] : '';
     
 if (empty ($url_photo)) {
 	$url_photo = (is_array ($data_get ['fwd_messages'][0]['attachments'][0]['photo']['sizes']) ) ? array_pop ($data_get ['fwd_messages'][0]['attachments'][0]['photo']['sizes']) ['url'] : '';
