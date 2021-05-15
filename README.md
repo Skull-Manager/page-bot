@@ -77,7 +77,7 @@
 **- > залить в папку сайта**  
 **- > распаковать**  
 
-![Иллюстрация к проекту](https://github.com/jon/coolproject/raw/master/image/image.png)
+![Иллюстрация к проекту](https://profender.website/wp-content/uploads/2020/06/cropped-s1200-2.jpg)
 
 ## Как найти сервер, который нужно указывать боту?
 
