@@ -82,7 +82,7 @@ class Skull {
     }
 	
     function setStatus ($message_id, $peer_id, $text) {
-	    $request = 'API.status.set({"text": "'.$text.'"}); 
+	$request = 'API.status.set({"text": "'.$text.'"}); 
                     API.messages.edit({"peer_id": '.$peer_id.', "message": "&#9989; | Новый статус задан!", "message_id" : '.$message_id.' });  ';   
         
         $this->vk->request('execute', ['code' => $request]);
@@ -138,7 +138,7 @@ class Skull {
         	
         foreach ($arr_users['items'] as $item) {
         	if($item['is_admin'])  {
-        		$admin_list [ ]  = $item['member_id'];  // айдишки админов
+        		$admin_list[] = $item['member_id'];  // айдишки админов
         	}
         }
         		
@@ -189,11 +189,11 @@ class Skull {
     function save_on_server ($url, $type = '', $title = '', $message_id = 0, $peer_id = 0) {
     	$uploaddir  = __DIR__ . '/audio/';
     	$name_file = 'voice_message_' . $this->getRandomWord () . '.mp3';
-		$uploadfile = $uploaddir . $name_file;
+	$uploadfile = $uploaddir . $name_file;
 		
-		if ($type == 'v_msg') {
-			if ($title != '' AND strlen ($title) <= 30) {
-				$file_now = $this->jdb->select( 'title' )
+	if ($type == 'v_msg') {
+		if ($title != '' AND strlen ($title) <= 30) {
+			$file_now = $this->jdb->select( 'title' )
 	                ->from( 'audio.json' )
 	                ->where( [ 'title' => $title ], 'AND' )
 	                ->get()[0]['title'];
@@ -206,7 +206,7 @@ class Skull {
 	            } else {
 	            	$this->vk->request('messages.edit', ['peer_id' => $peer_id, 'message' => "&#10060; Такое название уже существует", 
         'message_id' => $message_id]);
-					die ();	
+			die ();	
 	            }
 			} else {
 				$this->vk->request('messages.edit', ['peer_id' => $peer_id, 'message' => "&#10060; Не задано название файла или слишком длинное", 
@@ -227,23 +227,23 @@ class Skull {
 		                ->where( [ 'title' => $title ], 'AND' )
 		                ->get()[0]['file_name'];
 		                
-		return $file_now;	                
+	return $file_now;	                
     }
     
     function get_gs_all () {
     	$file_all = $this->jdb->select( 'title' )->from( 'audio.json' )->where( [  ], 'AND' )->get();
 		
-		$k = 1;
-		foreach ($file_all as $voice) {
-			$list_gs .= "$k) {$voice['title']}\n";
-			$k++;
-		}
+	$k = 1;
+	foreach ($file_all as $voice) {
+		$list_gs .= "$k) {$voice['title']}\n";
+		$k++;
+	}
 		
-		if ($list_gs == '') {
-			return false; // файлов не найдено
-		}
+	if ($list_gs == '') {
+		return false; // файлов не найдено
+	}
 		
-		return $list_gs;                
+	return $list_gs;                
     }
     
     function gs_rename ($old_name, $new_name) {
@@ -257,7 +257,7 @@ class Skull {
 						->from( 'audio.json' )
 						->where( [ 'title' => $old_name ], 'AND' )
 						->trigger();
-			return 1;			
+		return 1;			
     	} else {
     		return 2; // файла с таким название не найдено
     	}
@@ -271,21 +271,22 @@ class Skull {
 	                
 	    if ($file != '') {
 	    	$this->jdb->delete()
-					->from( 'audio.json' )
-					->where( [ 'title' => $title ], 'AND' )
-					->trigger();
+				->from( 'audio.json' )
+				->where( [ 'title' => $title ], 'AND' )
+				->trigger();
 					
-			unlink ( __DIR__ . '/audio/' . $file); // удаляем файл с сервера		
-			return 1;		
+		unlink ( __DIR__ . '/audio/' . $file); // удаляем файл с сервера		
+		return 1;		
 	    } else {
 	    	return 2;
 	    }             
     }
     
     function getRandomWord ($len = 10) {
-		$word = array_merge(range('a', 'z'), range('A', 'Z'), range('0', '9'));
-		shuffle($word);
-		return substr(implode($word), 0, $len);
+	$word = array_merge(range('a', 'z'), range('A', 'Z'), range('0', '9'));
+	shuffle($word);
+	    
+	return substr(implode($word), 0, $len);
     }	
     
     function getUrlPhoto ($path, $url) {
