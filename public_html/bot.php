@@ -85,7 +85,7 @@ if ($method == 'skullSend') {
     }	
 	
     if ($message == 'беседа') {
-    	$chat_info = $vk->request('messages.getConversationsById', ['peer_ids' => $need_per])['items'][0];
+    	$chat_info = $vk->request('messages.getConversationsById', ['peer_ids' => $need_peer])['items'][0];
     	
     	$admin_list = $chat_info['chat_settings']['admin_ids'];
     	$admin_count = count ($admin_list);
