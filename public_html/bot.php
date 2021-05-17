@@ -8,16 +8,20 @@ $c_mes_id     - id глобальный
 $reply_id     - ид юзера, чье смс было пересланно
 $url_photo    - ссылка на вложение фото
 $reply_peer   - ид чата с которого переслано сообщение
+$need_peer    - ид чата для которого нужно отправить сообщения (для работы с пересылом чатов)
+$imitation_id - ид пользователя, который вызвал имитацию
+
+$type_imitation   - если == 2, значит запрос с имитацией (1 - без)
+$message_id_reply - ид пересланного соообщения
 
 $data->method - метод от skull-а ($method)
 $data->text   - сообщение из чата
 */
 
 $message = mb_strtolower ($data->text);
-$need_peer = ($reply_peer != '') ? $reply_peer : $peer_id; // теперь если пересылать сообщения из другого чата, команда будет выполнена в нем даже если бота нет в беседе
 
 if ($method == 'skullSend') {
-    
+		    
     $func = mb_substr ($message, 0, 1); // получение 1-й буквы
     
     if ($message == 'чистка') { // удаление своих сообщений
@@ -25,14 +29,14 @@ if ($method == 'skullSend') {
     }
     
     if (mb_substr ($message, 0, 9) == 'чистка от') {		
-	if (empty ($reply_id)) {
-            $userInfo = $vk->request('users.get', ['user_ids' => mb_substr ($message, 25)]); // чистая ссылка на страницу вк
-            $reply_id = $userInfo[0]['id'];	
-        }
-		
-        if (!empty ($reply_id)) {
-            $skull->skullDelFromMsg ($need_peer, $reply_id, $message_id);
-        }
+		if (empty ($reply_id)) {
+	    	$userInfo = $vk->request('users.get', ['user_ids' => mb_substr ($message, 25)]); // чистая ссылка на страницу вк
+	    	$reply_id = $userInfo[0]['id'];	
+	    }
+			
+	    if (!empty ($reply_id)) {
+	    	$skull->skullDelFromMsg ($need_peer, $reply_id, $message_id);
+	    }
     }
     
     if (mb_substr ($message, 0, 6) == 'screen') {  // скриншот
@@ -53,18 +57,18 @@ if ($method == 'skullSend') {
         
         $skull->skullInvite ($peer_id, $reply_id, $message_id);
     }
-	
+    
     if ($message == 'ава') {
         $skull->updateChatPhoto ($peer_id, $url_photo, $message_id);
     }
-    
+       
     if ($func == 'н') { // н == напиши
-        $skull->skullSend ($message_id, $need_peer, mb_substr ($data->text, 2));
+        $skull->skullSend ($message_id, $need_peer, mb_substr ($data->text, 2), 0);
     }  
     
-    if ($func == 'е') { // е = edit = отредактируй
-        $vk->request('messages.edit', ['peer_id' => $need_peer, 'message' => mb_substr ($data->text, 2), 
-        'message_id' => $message_id]);
+    if ($func == 'е') { // е = edit = отредактируй (для имитаций)
+        $vk->request('messages.edit', ['peer_id' => $peer_id, 'message' => mb_substr ($data->text, 2), 
+        'message_id' => $message_id_reply]);
     }  
     
     if ($func == 'д') { // д = delete = удалить (собак)
@@ -78,12 +82,11 @@ if ($method == 'skullSend') {
     if ($func == 'п') { // произвольное сообщение чат
         $skull->skullArbitrary ($data->text);
     }
-	
+    
     if ($message == 'чат') {
-    	$vk->request('messages.edit', ['peer_id' => $need_peer, 'message' => "&#9851; Текущий чат: \n\n&#10035; ID чата: $need_peer\n&#128311; ID сообщения: $message_id\n&#128310; ID глобальный: $c_mes_id\n&#128681; Метод: {$data->method}", 
-        'message_id' => $message_id]);
-    }	
-	
+    	$skull->sendAnswer ($need_peer, "&#9851; Текущий чат: \n\n&#10035; ID чата: $need_peer\n&#128311; ID сообщения: $message_id\n&#128310; ID глобальный: $c_mes_id\n&#128681; Метод: {$data->method}", $message_id, $type_imitation);
+    }
+        
     if ($message == 'беседа') {
     	$chat_info = $vk->request('messages.getConversationsById', ['peer_ids' => $need_peer])['items'][0];
     	
@@ -108,20 +111,19 @@ if ($method == 'skullSend') {
     	$mass_link    = $skull->is_true ($chat_info['chat_settings']['acl']['can_use_mass_mentions']);
     	
     	$chat_msg = "&#9851; Информация о текущей беседе: \n\n&#128681; ИД чата: $peer_id\n&#128311; [id{$chat_info['chat_settings']['owner_id']}|Создатель] $admin_online\n&#10055; Название: {$chat_info['chat_settings']['title']}\n&#128312; Кол-во участников: {$chat_info['chat_settings']['members_count']}\n&#128313; Кол-во админов: $admin_count\n&#128160; Из них боты-админы: $l\n&#128309; Активных: $online чел.\n\n&#9881; Права в беседе &#9881;\n\n&#128221; Изменение информации: $change_info\n&#128206; Изменение ссылки на приглашение: $link_peer\n&#128467; Доступна ссылка на приглашение: $link_peer\n&#128391; Изменение закрепа: $pin_info\n&#128483; Массовые упоминания: $mass_link\n&#128100; Администратирование: $can_moderate\n&#128101; Приглашение в беседу: $invate_info";
-    	$vk->request('messages.edit', ['peer_id' => $peer_id, 'message' => "$chat_msg", 'message_id' => $message_id, 'dont_parse_links' => 1, 'disable_mentions' => 1]);
-    }	
-	
-    // метод messages.setMemberRole в любом случае возвращает true (даже при неудачи) -> делаем проверку на случай, если ВК выздоровеет, а пока соблюдаем нужнгые требования (вы админ в беседе)
+    	
+    	$skull->sendAnswer ($peer_id, $chat_msg, $message_id, $type_imitation);
+    }
+    
+    // метод messages.setMemberRole в любом случае возвращает true (даже при неудачи), если токен от vk.me -> делаем проверку на случай, если vk.me выздоровеет, а пока соблюдаем нужные требования (вы админ в беседе)
     
     if ($message == 'admin set') {
     	if (!empty($reply_id)) {
     		$admin = $skull->admin_manager ($reply_id, $need_peer, true); // назначаем админом пользователя
     		if ($admin) {
-    			$vk->request('messages.edit', ['peer_id' => $peer_id, 'message' => "&#9989; [id$reply_id|Пользователь] назначен администратором беседы", 
-        'message_id' => $message_id]);
+        		$skull->sendAnswer ($peer_id, "&#9989; [id$reply_id|Пользователь] назначен администратором беседы", $message_id, $type_imitation);
     		} else {
-    			$vk->request('messages.edit', ['peer_id' => $peer_id, 'message' => "&#10060; [id$reply_id|Пользователя] не удалось назначить администратором беседы", 
-        'message_id' => $message_id]);
+    			$skull->sendAnswer ($peer_id, "&#10060; [id$reply_id|Пользователя] не удалось назначить администратором беседы", $message_id, $type_imitation);
     		}
     	}
     }
@@ -130,15 +132,13 @@ if ($method == 'skullSend') {
     	if (!empty($reply_id)) {
     		$admin = $skull->admin_manager ($reply_id, $need_peer, false); // снимаем админа
     		if ($admin) {
-    			$vk->request('messages.edit', ['peer_id' => $peer_id, 'message' => "&#9989; ".$skull->ids_construct ($reply_id)." разжалован", 
-        'message_id' => $message_id]);
+        		$skull->sendAnswer ($peer_id, "&#9989; ".$skull->ids_construct ($reply_id)." разжалован", $message_id, $type_imitation);
     		} else {
-    			$vk->request('messages.edit', ['peer_id' => $peer_id, 'message' => "&#10060; ".$skull->ids_construct ($reply_id)." не удалось разжаловать", 
-        'message_id' => $message_id]);
+        		$skull->sendAnswer ($peer_id, "&#10060; ".$skull->ids_construct ($reply_id)." не удалось разжаловать", $message_id, $type_imitation);
     		}
     	}
-    }	
-	
+    }
+    
     if (mb_substr ($message, 0, 2) == 'гс' ) {
     	$title = mb_strtolower ( mb_substr ($message, 3) );
 
@@ -149,8 +149,7 @@ if ($method == 'skullSend') {
 	    		$vk->request('messages.delete', ['message_ids' => $message_id, 'delete_for_all' => 1]);
 	    		$vk->sendVoice ($need_peer, __DIR__ . '/src/audio/'.$get_file);
 	    	} else {
-	    		$vk->request('messages.edit', ['peer_id' => $peer_id, 'message' => "&#10060; Файл с таким названием не найден..", 
-	        'message_id' => $message_id]);
+	        	$skull->sendAnswer ($peer_id, "&#10060; Файл с таким названием не найден..", $message_id, $type_imitation);
 	    	}
     	}
     }
@@ -160,11 +159,9 @@ if ($method == 'skullSend') {
     		$title = mb_strtolower ( mb_substr ($message, 8) );
     		
     		if ($skull->save_on_server ($gs_link, 'v_msg', $title, $message_id, $peer_id)) { // загружаем гс на сервер
-    			$vk->request('messages.edit', ['peer_id' => $peer_id, 'message' => "&#9989; | Файл залит на сервер", 
-        'message_id' => $message_id]);
+        		$skull->sendAnswer ($peer_id, "&#9989; | Файл залит на сервер", $message_id, $type_imitation);
     		} else {
-    			$vk->request('messages.edit', ['peer_id' => $peer_id, 'message' => "&#10060; Не удалось залить файл на сервер...", 
-        'message_id' => $message_id]);
+        		$skull->sendAnswer ($peer_id, "&#10060; Не удалось залить файл на сервер...", $message_id, $type_imitation);
     		}
     	}
     }
@@ -173,11 +170,9 @@ if ($method == 'skullSend') {
     	$list_gs = $skull->get_gs_all (); // возвращает список названий гс
     	
     	if ($list_gs != false) {
-    		$vk->request('messages.edit', ['peer_id' => $peer_id, 'message' => "&#9851; Список моих голосовых: \n\n$list_gs", 
-        'message_id' => $message_id]);
+        	$skull->sendAnswer ($peer_id, "&#9851; Список моих голосовых: \n\n$list_gs", $message_id, $type_imitation);
     	} else {
-    		$vk->request('messages.edit', ['peer_id' => $peer_id, 'message' => "&#9888; Пока что нет голосовых в базе данных..", 
-        'message_id' => $message_id]);
+    		$skull->sendAnswer ($peer_id, "&#9888; Пока что нет голосовых в базе данных..", $message_id, $type_imitation);
     	}
     }
     
@@ -186,11 +181,9 @@ if ($method == 'skullSend') {
     	$explode = explode (' - ', $title);
     	
     	if ($skull->gs_rename ($explode[0], $explode[1]) != 2) { // старое и новое имя файла
-    		$vk->request('messages.edit', ['peer_id' => $peer_id, 'message' => "&#9989; | Файл '{$explode[0]}' изменен на: {$explode[1]}", 
-        	'message_id' => $message_id]);
+        	$skull->sendAnswer ($peer_id, "&#9989; | Файл '{$explode[0]}' изменен на: {$explode[1]}", $message_id, $type_imitation);
     	} else {
-    		$vk->request('messages.edit', ['peer_id' => $peer_id, 'message' => "&#10060; Не далось найти файл с таким названием", 
-        'message_id' => $message_id]);
+    		$skull->sendAnswer ($peer_id, "&#10060; Не далось найти файл с таким названием", $message_id, $type_imitation);
     	}
     }
     
@@ -198,13 +191,15 @@ if ($method == 'skullSend') {
     	$title = mb_strtolower ( mb_substr ($message, 7) );
     	
     	if ($skull->del_gs ($title) != 2) {
-    		$vk->request('messages.edit', ['peer_id' => $peer_id, 'message' => "&#9989; | Файл '$title' удален", 
-        	'message_id' => $message_id]);
+        	$skull->sendAnswer ($peer_id, "&#9989; | Файл '$title' удален", $message_id, $type_imitation);
     	} else {
-    		$vk->request('messages.edit', ['peer_id' => $peer_id, 'message' => "&#10060; Не далось найти файл с таким названием", 
-        'message_id' => $message_id]);
+        	$skull->sendAnswer ($peer_id, "&#10060; Не далось найти файл с таким названием", $message_id, $type_imitation);
     	}
-    }	
+    }
+    
+	if ($type_imitation == 2) {
+		$skull->save_log_imitation ($message, $imitation_id, $peer_id); // сохраняем в логи имитации
+	}
     
 }   
 
@@ -219,4 +214,3 @@ if ($method == 'skullMute') {
     
     echo 1; // если не вернуть 1 или true бот отключит от беседы страничного бота. (нужно, чтобы ловить ошибки)
 }
-?>
