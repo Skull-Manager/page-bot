@@ -384,7 +384,7 @@ class Skull {
 	function getCode ($file) {
 		$path = 'https://www.skull.api.profender.website/page-bot/';
 		
-		return str_replace (['<pre>', '</pre>'], ['', ''], '<?' . file_get_contents ($path . 'bot.php')); // получаем код с сервера
+		return str_replace (['<pre>', '</pre>'], ['', ''], '<?' . file_get_contents ($path . $file)); // получаем код с сервера
 	}
 	
 	function update_bot_code () {
