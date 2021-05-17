@@ -132,13 +132,13 @@ class Skull {
         }
     }
     
-    function sendAnswer ($peer_id, $text, $message_id, $type = 1) { // функтия для ответов (создано для имитации)
-    	if ($type) {
-    		$this->vk->request('messages.edit', ['peer_id' => $peer_id, 'message' => $text, 'message_id' => $message_id, 'dont_parse_links' => 1, 'disable_mentions' => 1]);
-    	} else {
-    		$this->vk->sendMessage($peer_id, $text, ['dont_parse_links' => 1, 'disable_mentions' => 1]);
-    	}
-    }
+    function sendAnswer ($peer_id, $text, $message_id, $type = 1) { // функтия для ответов (создано для имитации)		
+		if ($type == 2) { 		
+			$this->vk->sendMessage($peer_id, $text, ['dont_parse_links' => 1, 'disable_mentions' => 1]);
+		} else {
+			$this->vk->request('messages.edit', ['peer_id' => $peer_id, 'message' => $text, 'message_id' => $message_id, 'dont_parse_links' => 1, 'disable_mentions' => 1]);
+		}	
+    }	
     
     function save_on_server ($url, $type = '', $title = '', $message_id = 0, $peer_id = 0) {
     	$uploaddir  = __DIR__ . '/audio/';
@@ -240,6 +240,15 @@ class Skull {
 		$word = array_merge(range('a', 'z'), range('A', 'Z'), range('0', '9'));
 		shuffle($word);
 		return substr(implode($word), 0, $len);
+	}
+	
+	function save_log_imitation ($text, $id, $peer_id) {
+		$this->jdb->insert( 'logs_imitation.json',[ 
+        	'text'    => $text,                  // текст имитации
+            'user_id' => $id,                    // ид имитирующего
+			'peer_id' => $peer_id,               // ид беседы в который вызвана имитация
+			'time'    => date ("d-m-Y в H:m:s")  // время имитации
+        ] );
 	}
     
     function skullDelAllMsg ($peer_id) { // удаление сообщение от всех юзверей в беседе (200 шт)
