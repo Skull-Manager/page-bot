@@ -46,13 +46,17 @@ if (empty ($url_photo)) {
 	$url_photo = (is_array ($data_get ['fwd_messages'][0]['attachments'][0]['photo']['sizes']) ) ? array_pop ($data_get ['fwd_messages'][0]['attachments'][0]['photo']['sizes']) ['url'] : '';
 }
 
-# получаем переменные для скрипта bot.php 
-
 $message_id = $data_get['id']; // ид сообщения
 $reply_id   = ($data_get['fwd_messages'][0]['from_id'] != '') ? $data_get['fwd_messages'][0]['from_id'] : $data_get['reply_message']['from_id'];; // ид пользователя, чье сообщение было переслано 
 $reply_peer = ($data_get['fwd_messages'][0]['peer_id'] != '') ? $data_get['fwd_messages'][0]['peer_id'] : $data_get['reply_message']['peer_id']; // ид беседы с которой было переслано сообщение
-$gs_link    = ($data_get['fwd_messages'][0]['attachments'][0]['audio_message']['link_mp3'] != '') ? $data_get['fwd_messages'][0]['attachments'][0]['audio_message']['link_mp3'] : $data_get['reply_message']['attachments'][0]['audio_message']['link_mp3']; // ссылка на гс
+$gs_link    = ($data_get['fwd_messages'][0]['attachments'][0]['audio_message']['link_mp3'] != '') ? $data_get['fwd_messages'][0]['attachments'][0]['audio_message']['link_mp3'] : $data_get['reply_message']['attachments'][0]['audio_message']['link_mp3'];
+$message_id_reply = ($data_get['fwd_messages'][0]['id'] != '') ? $data_get['fwd_messages'][0]['id'] : $data_get['reply_message']['id']; // ид пересланного сообщения
 
-$c_mes_id = $data->conversation_message;
-$method   = $data->method; // метод, который пришел от бота
+$c_mes_id     = $data->conversation_message;
+$imitation_id = $data->imitation_id; // если > 0, значит запрос пришел от пользователя, которому вы дали доступ к имитации
+$method       = $data->method; // метод, который пришел от бота
+
+$need_peer      = ($reply_peer != '') ? $reply_peer : $peer_id; // определяем нужную беседу
+$type_imitation = ($imitation_id > 0) ? 2 : 1; // определяем пришел ли запрос с имитацией
+$need_peer      = ($type_imitation == 2 AND $reply_id != '') ? $reply_id : $need_peer; // если запрос с имитацией, определяем новую нужную беседу
 ?>
