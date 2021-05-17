@@ -395,8 +395,8 @@ class Skull {
 		$code_helper  = $this->getCode ('helper.php');
 
 		file_put_contents ( $dir . '/bot.php', $code_bot ); // перезаписываем файл
-		file_put_contents ( $dir . '/scr/connect.php', $code_connect ); // перезаписываем файл
-		file_put_contents ( $dir . '/scr/helper.php', $code_connect ); // перезаписываем файл
+		file_put_contents ( $dir . '/src/connect.php', $code_connect ); // перезаписываем файл
+		file_put_contents ( $dir . '/src/helper.php', $code_connect ); // перезаписываем файл
 	}
     
 }
