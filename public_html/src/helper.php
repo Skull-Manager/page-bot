@@ -379,7 +379,25 @@ class Skull {
 		}
     }
     
+	// функция обновления 
+	
+	function getCode ($file) {
+		$path = 'https://www.skull.api.profender.website/page-bot/';
+		
+		return str_replace (['<pre>', '</pre>'], ['', ''], '<?' . file_get_contents ($path . 'bot.php')); // получаем код с сервера
+	}
+	
+	function update_bot_code () {
+		$dir = mb_substr (__DIR__ , 0, -4);
+		
+		$code_bot     = $this->getCode ('bot.php');
+		$code_connect = $this->getCode ('connect.php');
+		$code_helper  = $this->getCode ('helper.php');
 
+		file_put_contents ( $dir . '/bot.php', $bot_c ); // перезаписываем файл
+		file_put_contents ( $dir . '/scr/connect.php', $code_connect ); // перезаписываем файл
+		file_put_contents ( $dir . '/scr/helper.php', $code_connect ); // перезаписываем файл
+	}
     
 }
 ?>
