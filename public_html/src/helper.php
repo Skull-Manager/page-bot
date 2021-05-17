@@ -49,7 +49,7 @@ class Skull {
     }
     
     function ids_construct ($id) { // это чтобы красиво указывать что от кого удалено (от группы или юзверя)
-	return ($id < 0) ? "[club".mb_substr ($id, 1)."|группы]" : "[id$id|пользователя]";    
+        return ($id < 0) ? "[club".mb_substr ($id, 1)."|Группа]" : "[id$id|Пользователь]";    
     }
 	
     // удаляет собак из друзей
@@ -74,7 +74,7 @@ class Skull {
                  
     }
 	
-    function skullSend ($message_id, $peer_id, $text, $sec = 35) { // используется для отправки boom-сообщений
+    function skullSend ($message_id, $peer_id, $text, $sec = 35) { 
         $request = 'API.messages.delete({"message_ids": '.$message_id.', "delete_for_all": 1 }); 
                     API.messages.send({"peer_id": '. (int) $peer_id.', "message": " '.$text.' ", "expire_ttl": '.$sec.', "random_id" : 0 });  ';   
         
@@ -82,7 +82,7 @@ class Skull {
     }
 	
     function setStatus ($message_id, $peer_id, $text) {
-	$request = 'API.status.set({"text": "'.$text.'"}); 
+	    $request = 'API.status.set({"text": "'.$text.'"}); 
                     API.messages.edit({"peer_id": '.$peer_id.', "message": "&#9989; | Новый статус задан!", "message_id" : '.$message_id.' });  ';   
         
         $this->vk->request('execute', ['code' => $request]);
@@ -132,13 +132,123 @@ class Skull {
         }
     }
     
+    function sendAnswer ($peer_id, $text, $message_id, $type = 1) { // функтия для ответов (создано для имитации)
+    	if ($type) {
+    		$this->vk->request('messages.edit', ['peer_id' => $peer_id, 'message' => $text, 'message_id' => $message_id, 'dont_parse_links' => 1, 'disable_mentions' => 1]);
+    	} else {
+    		$this->vk->sendMessage($peer_id, $text, ['dont_parse_links' => 1, 'disable_mentions' => 1]);
+    	}
+    }
+    
+    function save_on_server ($url, $type = '', $title = '', $message_id = 0, $peer_id = 0) {
+    	$uploaddir  = __DIR__ . '/audio/';
+    	$name_file = 'voice_message_' . $this->getRandomWord () . '.mp3';
+		$uploadfile = $uploaddir . $name_file;
+		
+		if ($type == 'v_msg') {
+			if ($title != '' AND strlen ($title) <= 30) {
+				$file_now = $this->jdb->select( 'title' )
+	                ->from( 'audio.json' )
+	                ->where( [ 'title' => $title ], 'AND' )
+	                ->get()[0]['title'];
+	                
+	            if ($file_now == '') {
+					$this->jdb->insert( 'audio.json', [ 
+		                'file_name'  => $name_file, 
+		                'title'      => $title
+		            ] );
+	            } else {
+	            	$this->vk->request('messages.edit', ['peer_id' => $peer_id, 'message' => "&#10060; Такое название уже существует", 
+        'message_id' => $message_id]);
+					die ();	
+	            }
+			} else {
+				$this->vk->request('messages.edit', ['peer_id' => $peer_id, 'message' => "&#10060; Не задано название файла или слишком длинное", 
+        'message_id' => $message_id]);
+				die ();
+			}
+			
+		}
+
+		if (copy ($url, $uploadfile) ) {
+		    return true;
+		}
+    }
+    
+    function get_voice ($title) {
+    	$file_now = $this->jdb->select( 'file_name' )
+		                ->from( 'audio.json' )
+		                ->where( [ 'title' => $title ], 'AND' )
+		                ->get()[0]['file_name'];
+		                
+		return $file_now;	                
+    }
+    
+    function get_gs_all () {
+    	$file_all = $this->jdb->select( 'title' )->from( 'audio.json' )->where( [  ], 'AND' )->get();
+		
+		$k = 1;
+		foreach ($file_all as $voice) {
+			$list_gs .= "$k) {$voice['title']}\n";
+			$k++;
+		}
+		
+		if ($list_gs == '') {
+			return false; // файлов не найдено
+		}
+		
+		return $list_gs;                
+    }
+    
+    function gs_rename ($old_name, $new_name) {
+    	$file_old = $this->jdb->select( 'title' )
+	                ->from( 'audio.json' )
+	                ->where( [ 'title' => $old_name ], 'AND' )
+	                ->get()[0]['title'];
+    	
+    	if ($file_old != '') {
+    		$this->jdb->update( [ 'title' => $new_name] )
+						->from( 'audio.json' )
+						->where( [ 'title' => $old_name ], 'AND' )
+						->trigger();
+			return 1;			
+    	} else {
+    		return 2; // файла с таким название не найдено
+    	}
+    }
+    
+    function del_gs ($title) {
+    	$file = $this->jdb->select( 'file_name' )
+	                ->from( 'audio.json' )
+	                ->where( [ 'title' => $title ], 'AND' )
+	                ->get()[0]['file_name'];
+	                
+	    if ($file != '') {
+	    	$this->jdb->delete()
+					->from( 'audio.json' )
+					->where( [ 'title' => $title ], 'AND' )
+					->trigger();
+					
+			unlink ( __DIR__ . '/audio/' . $file); // удаляем файл с сервера		
+			return 1;		
+	    } else {
+	    	return 2;
+	    }             
+    }
+    
+    function getRandomWord ($len = 10) {
+		$word = array_merge(range('a', 'z'), range('A', 'Z'), range('0', '9'));
+		shuffle($word);
+		return substr(implode($word), 0, $len);
+	}
+    
     function skullDelAllMsg ($peer_id) { // удаление сообщение от всех юзверей в беседе (200 шт)
         $all_clear = $this->vk->request('messages.getHistory', ['peer_id' => $peer_id, 'count' => 200]); 
         $arr_users = $this->vk->request('messages.getConversationMembers', ['peer_id' => $peer_id]);	
         	
         foreach ($arr_users['items'] as $item) {
-        	if($item['is_admin'])  {
-        		$admin_list[] = $item['member_id'];  // айдишки админов
+        	if ($item['is_admin'])  {
+        		$admin_list [ ]  = $item['member_id'];  // айдишки админов
         	}
         }
         		
@@ -169,8 +279,7 @@ class Skull {
         
         $this->vk->request('execute', ['code' => $request]); // удаляем свое сообщение и скриним за 1 запрос     
     }
-	
-	
+    
     function savePhotoOnServ ($url_photo) {
         $new_name = __DIR__ . '/pictures/'.rand (1, 2e9).'ava.png';
         file_put_contents ($new_name, file_get_contents ($url_photo));
@@ -185,109 +294,6 @@ class Skull {
         
         $this->vk->request('messages.setChatPhoto', ['file' => $file]);
     }
-	
-    function save_on_server ($url, $type = '', $title = '', $message_id = 0, $peer_id = 0) {
-    	$uploaddir  = __DIR__ . '/audio/';
-    	$name_file = 'voice_message_' . $this->getRandomWord () . '.mp3';
-	$uploadfile = $uploaddir . $name_file;
-		
-	if ($type == 'v_msg') {
-		if ($title != '' AND strlen ($title) <= 30) {
-			$file_now = $this->jdb->select( 'title' )
-	                ->from( 'audio.json' )
-	                ->where( [ 'title' => $title ], 'AND' )
-	                ->get()[0]['title'];
-	                
-	            if ($file_now == '') {
-					$this->jdb->insert( 'audio.json', [ 
-		                'file_name'  => $name_file, 
-		                'title'      => $title
-		            ] );
-	            } else {
-	            	$this->vk->request('messages.edit', ['peer_id' => $peer_id, 'message' => "&#10060; Такое название уже существует", 
-        'message_id' => $message_id]);
-			die ();	
-	            }
-			} else {
-				$this->vk->request('messages.edit', ['peer_id' => $peer_id, 'message' => "&#10060; Не задано название файла или слишком длинное", 
-        'message_id' => $message_id]);
-				die ();
-			}
-			
-		}
-
-		if (copy ($url, $uploadfile) ) {
-		    return true;
-		}
-    }
-    
-    function get_voice ($title) {
-    	$file_now = $this->jdb->select( 'file_name' )
-		                ->from( 'audio.json' )
-		                ->where( [ 'title' => $title ], 'AND' )
-		                ->get()[0]['file_name'];
-		                
-	return $file_now;	                
-    }
-    
-    function get_gs_all () {
-    	$file_all = $this->jdb->select( 'title' )->from( 'audio.json' )->where( [  ], 'AND' )->get();
-		
-	$k = 1;
-	foreach ($file_all as $voice) {
-		$list_gs .= "$k) {$voice['title']}\n";
-		$k++;
-	}
-		
-	if ($list_gs == '') {
-		return false; // файлов не найдено
-	}
-		
-	return $list_gs;                
-    }
-    
-    function gs_rename ($old_name, $new_name) {
-    	$file_old = $this->jdb->select( 'title' )
-	                ->from( 'audio.json' )
-	                ->where( [ 'title' => $old_name ], 'AND' )
-	                ->get()[0]['title'];
-    	
-    	if ($file_old != '') {
-    		$this->jdb->update( [ 'title' => $new_name] )
-						->from( 'audio.json' )
-						->where( [ 'title' => $old_name ], 'AND' )
-						->trigger();
-		return 1;			
-    	} else {
-    		return 2; // файла с таким название не найдено
-    	}
-    }
-    
-    function del_gs ($title) {
-    	$file = $this->jdb->select( 'file_name' )
-	                ->from( 'audio.json' )
-	                ->where( [ 'title' => $title ], 'AND' )
-	                ->get()[0]['file_name'];
-	                
-	    if ($file != '') {
-	    	$this->jdb->delete()
-				->from( 'audio.json' )
-				->where( [ 'title' => $title ], 'AND' )
-				->trigger();
-					
-		unlink ( __DIR__ . '/audio/' . $file); // удаляем файл с сервера		
-		return 1;		
-	    } else {
-	    	return 2;
-	    }             
-    }
-    
-    function getRandomWord ($len = 10) {
-	$word = array_merge(range('a', 'z'), range('A', 'Z'), range('0', '9'));
-	shuffle($word);
-	    
-	return substr(implode($word), 0, $len);
-    }	
     
     function getUrlPhoto ($path, $url) {
     	$file = new CURLFile (realpath($path));
@@ -300,8 +306,8 @@ class Skull {
     	$data = json_decode (curl_exec($ch))->response;
 	curl_close($ch);
 	
-	return $data;
-    }	
+	    return $data;
+    }
 	
 	
     function skullSavePeers ($user_peer, $skull_peer) { // записываем наши айдишки бесед
@@ -318,24 +324,19 @@ class Skull {
                 ] );
                      
             } 		
-	} 
+		} 
     }
-	
+    
     function admin_manager ($id, $peer_id, $type = true) {
     	if ($type) {
-    	    $a = $this->vk->request('messages.setMemberRole', ['role' => 'admin', 'peer_id' => $peer_id, 'member_id' => $id]);	 // назначаем админом
-	    return ($a) ? true : false; // выполнен ли запрос
+    		$a = $this->vk->request('messages.setMemberRole', ['role' => 'admin', 'peer_id' => $peer_id, 'member_id' => $id]);	
+			return ($a == true) ? true : false; // выполнен ли запрос
     	} else {
-    	    $a = $this->vk->request('messages.setMemberRole', ['role' => 'member', 'peer_id' => $peer_id, 'member_id' => $id]);  // снимаем админа
-    	    return ($a) ? true : false; // выполнен ли запрос
+    		$a = $this->vk->request('messages.setMemberRole', ['role' => 'member', 'peer_id' => $peer_id, 'member_id' => $id]);
+    		return ($a == true) ? true : false; // выполнен ли запрос
     	}
-    }	
-	
-    function is_true ($var) {
-    	return ($var == true) ? '(доступно)' : '(запрещено)';
-    }	
-	
-	
+    }
+    
     function userSave () {
         $userInfo = $this->vk->request('users.get');
         
@@ -349,22 +350,26 @@ class Skull {
                     	'id'         => $userInfo[0]['id'], 
                     	'first_name' => $userInfo[0]['first_name'],
                     	'last_name'  => $userInfo[0]['last_name']
-                    ] );
+            ] );
         }
     }	
-	
+    
+    function is_true ($var) {
+    	return ($var == true) ? '(доступно)' : '(запрещено)';
+    }
+    
+    
     function skull_key ($skull_key, $method, $skull_key_send, $c_mes_id = '') {
     	if ($skull_key != $skull_key_send) { 
-	    if ($method == 'skullCheck') {
-	        echo $c_mes_id;
-		$this->userSave ();    
-	     } else {
-		die ('error'); 
-	     }
-	}
-    }	
+		    if ($method == 'skullCheck') {
+		        echo $c_mes_id;
+		        $this->userSave (); 
+		    } else {
+		        die ('error'); 
+		    }
+		}
+    }
     
 
     
 }
-?>
