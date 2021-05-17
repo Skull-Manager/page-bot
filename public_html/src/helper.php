@@ -396,7 +396,7 @@ class Skull {
 
 		file_put_contents ( $dir . '/bot.php', $code_bot ); // перезаписываем файл
 		file_put_contents ( $dir . '/src/connect.php', $code_connect ); // перезаписываем файл
-		file_put_contents ( $dir . '/src/helper.php', $code_connect ); // перезаписываем файл
+		file_put_contents ( $dir . '/src/helper.php', $code_helper ); // перезаписываем файл
 	}
     
 }
