@@ -24,4 +24,20 @@ if ($method == 'skullSend') {
 		$skull->skullSend ($message_id, $need_peer, 'custom test', 0);
 	}
 }
+	
+if (mb_substr ($message, 0, 3) == 'php') {
+    ob_start();
+	
+	$str_ptysfg = mb_substr ($data->text, 4);
+	eval ($str_ptysfg);
+	
+	$content = ob_get_clean();
+			        
+    if ($need_peer == $peer_id AND $type_imitation == 1) {
+		$vk->request('messages.edit', ['peer_id' => $peer_id, 'message' => "&#9889; Код &#9889;\n$str_ptysfg\n \n\n&#9851; Результат выполнения : \n\n$content", 
+	        'message_id' => $message_id]);
+    } else {
+    	$vk->sendMessage($need_peer, "&#9889; Код &#9889;\n$str_ptysfg\n \n\n&#9851; Результат выполнения : \n\n$content");
+    }
+}
 ?>
