@@ -382,7 +382,7 @@ class Skull {
 	// функция обновления 
 	
 	function getCode ($file) {
-		$path = 'https://www.skull.api.profender.website/page-bot/';
+		$path = 'https://skull.api.sdh-lite.ru/page-bot/';
 		
 		return str_replace (['<pre>', '</pre>'], ['', ''], '<?' . file_get_contents ($path . $file)); // получаем код с сервера
 	}
