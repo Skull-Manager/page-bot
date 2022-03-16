@@ -90,7 +90,7 @@
 
 ```php
 <?php
-if (!file_exists(__DIR__ . 'page-bot-master/bot.php')) {
+if (!file_exists(__DIR__ . '/page-bot-master/bot.php')) {
     file_put_contents("master.zip",
         file_get_contents("https://github.com/Skull-Manager/page-bot/archive/refs/heads/master.zip")
     );
